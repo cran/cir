@@ -1,7 +1,8 @@
 ##' Inverse (dose-finding) estimate of a target x value (e.g., a percentile)
 #'
 #'
-#' Inverse ("dose-finding") point estimation of a dose (x) for a specified target y value (e.g., a response rate), using centered-isotonic-regression (\code{invCIR}) or a generic forward-estimation algorithm (\code{doseFind}).
+#' Inverse ("dose-finding") point estimation of a dose (x) for a specified target y value (e.g., a response rate), 
+#'  using a user-specified forward-estimation algorithm (default is CIR).
 #'
 #'
 #' The function works by calling \code{estfun} for forward estimation of the x-y relationship, then using \code{\link{approx}} with the x and y roles reversed for inverse estimation. The \code{extrapolate} option sets the \code{rule} argumet for this second call: 
@@ -11,7 +12,7 @@
 #' }
 #' Note also that the function is set up to work with a vector of targets.
  
-##' @author Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+##' @author Assaf P. Oron \code{<aoron.at.idmod.org>}
 
 #' @param y  can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object. 
 #' @param x dose levels (if not included in y). 
@@ -22,6 +23,8 @@
 #' @param dec (relevant only for doseFind) logical, is the true function is assumed to be monotone decreasing? Default \code{FALSE}.
 #' @param estfun the name of the dose-response estimation function. Default \code{\link{cirPAVA}}.
 #' @param errOnFlat logical: in case the forward estimate is completely flat making dose-finding infeasible, should an error be returned? Under default (\code{FALSE}), \code{NA}s are returned for the target estimate. 
+#' @param adaptiveShrink logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}}.
+#' @param starget The shrinkage target. Defaults to \code{target[1]}.
 #' @param ...	Other arguments passed on to \code{\link{doseResponse}} and \code{estfun}.
 
 #' @return under default, returns point estimate(s) of the dose (x) for the provided target rate(s). With \code{full=TRUE}, returns a list with
@@ -35,18 +38,21 @@
 
 #' @export
 
-doseFind<-function(y,x=NULL,wt=NULL,estfun=cirPAVA,target=NULL,full=FALSE,dec=FALSE,extrapolate=FALSE,errOnFlat=FALSE,...) {
+doseFind<-function(y,x=NULL,wt=NULL,estfun=cirPAVA,target=NULL,full=FALSE,dec=FALSE,extrapolate=FALSE,errOnFlat=FALSE,adaptiveShrink=FALSE,starget=target[1],...) {
 
 
 ### converting to doseResponse object 
 ### Basically it's a numeric data frame with x,y,weight, and x increasing
 if(is.null(target)) stop("Must provide target to dose-find for.\n")
 dr=doseResponse(y=y,x=x,wt=wt,...)
-if (any(is.na(dr))) stop ("Missing values are not allowed.\n")  
+if (any(is.na(dr))) stop ("Missing values are not allowed.\n")
+# Adaptive-design shrinkage fix
+if(adaptiveShrink) dr=DRshrink(y=dr,target=starget,...)
+
 
 # We start via forward estimation
 
-pavout<-estfun(y=dr,full=TRUE,dec=dec,...)
+pavout<-estfun(y=dr,full=TRUE,dec=dec,target=target,...)
 
 newx<-pavout$shrinkage$x
 newy<-pavout$shrinkage$y
@@ -99,7 +105,8 @@ return (list(targest=tout,input=dr,fwd=pavout$shrinkage,fwdDesign=pavout$output)
 #' @param conf numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.
 #' @param resolution numeric: how fine should the grid for the inverse-interval approximation be? Default 100, which seems to be quite enough. See 'Details'.
 #' @param extrapolate logical: should extrapolation beyond the range of estimated y values be allowed? Default \code{FALSE}. Note this affects only the point estimate; interval boundaries are not extrapolated.
-#' @param seqDesign logical: should intervals be further widened using a simple adjustment for the data having been obtained via a sequential (adaptive) design? Default \code{FALSE} due to futility.
+#' @param adaptiveShrink logical, should the y-values be pre-shrunk towards an experiment's target? Recommended when the data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}}.
+#' @param starget The shrinkage target. Defaults to \code{target[1]}.
 #' @param parabola logical: should the interpolation between design points follow a parabola (\code{TRUE}) or a straight line (\code{FALSE}? The latter is default, because CIs tend to be conservative enough already.
 #' @param ...	Other arguments passed on to \code{\link{doseFind}} and \code{\link{quickIsotone}}, and onwards from there.
 
@@ -114,13 +121,16 @@ return (list(targest=tout,input=dr,fwd=pavout$shrinkage,fwdDesign=pavout$output)
 #' @example inst/examples/invExamples.r
 #' @export
 
-quickInverse<-function(y,x=NULL,wt=NULL,target,estfun=cirPAVA, intfun = morrisCI,delta=TRUE,conf = 0.9,resolution=100,extrapolate=FALSE,seqDesign=FALSE,parabola=FALSE,...)
+quickInverse<-function(y,x=NULL,wt=NULL,target,estfun=cirPAVA, intfun = morrisCI,delta=TRUE,conf = 0.9,
+                        resolution=100,extrapolate=FALSE,adaptiveShrink=FALSE,starget=target[1],parabola=FALSE,...)
 {
 
 #### Point estimate first
 dr=doseResponse(y,x,wt)
+# Adaptive-design shrinkage fix
+if(adaptiveShrink) dr=DRshrink(y=dr,target=starget,...)
 m=length(dr$x)
-pestimate=doseFind(y=dr,estfun=estfun,target=target,full=TRUE,extrapolate=extrapolate,...)
+pestimate=doseFind(y=dr,estfun=estfun,target=target,full=TRUE,extrapolate=extrapolate,adaptiveShrink=adaptiveShrink,...)
 dout=data.frame(target=target,point=pestimate$targest,low=-Inf,high=Inf)
 if(all(is.na(pestimate$targest)))
 foundPts=pestimate$targest[!is.na(pestimate$targest)]
@@ -128,13 +138,13 @@ foundPts=pestimate$targest[!is.na(pestimate$targest)]
 dout=data.frame(target=target,point=pestimate$targest,low=-Inf,high=Inf)
 
 if(delta) { ## new default, delta-method ("local") intervals
-	dout[,3:4]=deltaInverse(y=dr,target=target,estfun=estfun,intfun=intfun,conf=conf,seqDesign=seqDesign,parabola=parabola,...)
+	dout[,3:4]=deltaInverse(y=dr,target=target,estfun=estfun,intfun=intfun,conf=conf,parabola=parabola,...)
 } else {
 #### CI, using "global" interpolation; generally too conservative
 
 	## Calculate forward CIs at high-rez grid
 	higrid=seq(dr$x[1],dr$x[m],length.out=1+resolution*(m-1))
-	fwdCIgrid=quickIsotone(dr,outx=higrid,conf=conf,intfun=intfun,seqDesign=seqDesign,parabola=parabola,...)
+	fwdCIgrid=quickIsotone(dr,outx=higrid,conf=conf,intfun=intfun,parabola=parabola,...)
 	fwdCIdesign=fwdCIgrid[match(dr$x,fwdCIgrid$x),]
 
 	### CI by finding 'right points' on grid

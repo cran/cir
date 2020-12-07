@@ -32,7 +32,7 @@ return(TRUE)
 #'
 #'
 #' @aliases doseResponse is.doseResponse is.DRtrace
-##' @author Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+##' @author Assaf P. Oron \code{<aoron.at.idmod.org>}
 ##' 
 #' @example inst/examples/classExamples.r
 ##' @seealso \code{\link{cirPAVA}}, \code{\link{plot.doseResponse}},\code{\link{plot.DRtrace}} 
@@ -40,12 +40,12 @@ return(TRUE)
 #' @param y,x,wt  see help to \code{\link{cirPAVA}}.
 #' @param noyes logical, in case of a 2-column input is the 1st column 'no'? Default \code{FALSE}, meaning the 1st column is 'yes'.
 #' @param dr the object being checked
-#' @param ... (\code{doseResponse()} only) parameters passed on to \code{DRtrace()}
+#' @param ... parameters passed on to \code{DRtrace()}, or ignored.
 #' 
 #' @return For constructor functions, the relevant object. For checking functions, a logical value indicating whether the object meets class definition.
 #' @export
 
-DRtrace<-function(y,x=NULL,wt=NULL,noyes=FALSE)
+DRtrace<-function(y,x=NULL,wt=NULL,noyes=FALSE,...)
 {
 if(is.DRtrace(y)) return(y)
 

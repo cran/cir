@@ -11,7 +11,7 @@
 #' note that unlike centered-isotonic-regression (CIR, see \code{\link{cirPAVA}}), this algorithm does not use the dose (x) values at all. For a discussion why CIR is preferred over "plain-vanilla" PAVA, see Oron and Flournoy (2017).
  
 #  
-##' @author C.R. Raubertas, Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+##' @author C.R. Raubertas, Assaf P. Oron \code{<aoron.at.idmod.org>}
 #' @references Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research, In Press (author's public version available on arxiv.org).
 
 
@@ -21,6 +21,7 @@
 #' @param outx vector of x values for which predictions will be made. If \code{NULL} (default), this will be set to the set of unique values in the x argument (or equivalently in y$x). Non-NULL inputs are relevant only if \code{full=TRUE}.
 #' @param full logical, is a more complete output desired? if \code{FALSE} (default), only a vector of point estimates for y at the provided dose levels is returned
 #' @param dec logical, is the true function is assumed to be monotone decreasing? Default \code{FALSE}.
+#' @param adaptiveShrink logical, should the y-values be pre-shrunk towards an experimental target? May be relevant if data were obtain via an adaptive dose-finding design. See \code{\link{DRshrink}}.
 #' @param ...	Other arguments passed on to the constructor functions that pre-process the input.
 
 #' @return under default, returns a vector of y estimates at unique x values. With \code{full=TRUE}, returns a list of 3 \code{\link{doseResponse}} objects named \code{output,input,shrinkage} for the output data at dose levels, the input data, and the function as fit at algorithm-generated points, respectively. For this function, the first and third objects are identical.
@@ -28,7 +29,7 @@
 #' @seealso \code{\link{cirPAVA}}
 #' @export
 
-oldPAVA<-function (y,x=NULL,wt=rep(1,length(x)),outx=NULL,full=FALSE,dec=FALSE,...) {
+oldPAVA<-function (y,x=NULL,wt=rep(1,length(x)),outx=NULL,full=FALSE,dec=FALSE,adaptiveShrink=FALSE,...) {
 
 ### converting to doseResponse object 
 ### Basically it's a numeric data frame with x,y,weight, and x increasing
@@ -38,6 +39,8 @@ if(is.null(x)) { x=1:length(y); wt=rep(1,length(x))}
 
 dr=doseResponse(y,x,wt,...)
 if (any(is.na(dr))) stop ("Missing values are not allowed.\n")  
+# Optional pre-shrinking of y for adaptive designs
+if(adaptiveShrink) dr=DRshrink(y=dr,...)
 
 ### Predictions will be delivered for x=outx
 if(is.null(outx)) outx=dr$x

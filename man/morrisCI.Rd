@@ -4,8 +4,15 @@
 \alias{morrisCI}
 \title{Analytical confidence intervals using the Morris (1988) algorithm}
 \usage{
-morrisCI(y, n, phat = y/n, conf = 0.9, narrower = TRUE,
-  alternate = wilsonCI, ...)
+morrisCI(
+  y,
+  n,
+  phat = y/n,
+  conf = 0.9,
+  narrower = TRUE,
+  alternate = wilsonCI,
+  ...
+)
 }
 \arguments{
 \item{y}{integer or numeric vector, the pointwise Binomial counts}
@@ -84,5 +91,5 @@ Morris, M., 1988. Small-sample confidence limits for parameters under inequality
 \code{\link{isotInterval}}
 }
 \author{
-Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+Assaf P. Oron \code{<aoron.at.idmod.org>}
 }

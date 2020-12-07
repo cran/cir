@@ -70,7 +70,7 @@ return(uout)
 ##' 
 ##' The default for backup is Wilson's (\code{wilconCI}). Also available are Jeffrys' (\code{jeffCI}) and Agresti-Coull (\code{agcouCI}).
 
-#' @author Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+#' @author Assaf P. Oron \code{<aoron.at.idmod.org>}
 #' @export
 #' @seealso \code{\link{isotInterval}}
 #' @example inst/examples/fwdCiExamples.r

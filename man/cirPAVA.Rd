@@ -4,9 +4,19 @@
 \alias{cirPAVA}
 \title{Returns centered-isotonic-regression estimate}
 \usage{
-cirPAVA(y, x = NULL, wt = NULL, outx = NULL, full = FALSE,
-  dec = FALSE, strict = FALSE, interiorStrict = TRUE, ybounds = 0:1,
-  ...)
+cirPAVA(
+  y,
+  x = NULL,
+  wt = NULL,
+  outx = NULL,
+  full = FALSE,
+  dec = FALSE,
+  strict = FALSE,
+  interiorStrict = TRUE,
+  ybounds = 0:1,
+  adaptiveShrink = FALSE,
+  ...
+)
 }
 \arguments{
 \item{y}{can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object.}
@@ -27,7 +37,9 @@ cirPAVA(y, x = NULL, wt = NULL, outx = NULL, full = FALSE,
 
 \item{ybounds}{numeric vector of length 2, relevant only under the default setting of \code{strict=FALSE,interiorStrict=TRUE}. Default \code{0:1}. See 'Details'.}
 
-\item{...}{Other arguments passed on to the constructor functions that pre-process the input.}
+\item{adaptiveShrink}{logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. If \code{TRUE}, then must also provide a \code{target} argument that will be passed via \code{...}.}
+
+\item{...}{Other arguments passed on to pre-processing functions.}
 }
 \value{
 under default, returns a vector of y estimates at unique x values. With \code{full=TRUE}, returns a list of 3 \code{\link{doseResponse}} objects name \code{output,input,shrinkage} for the output data at dose levels, the input data, and the function as fit at algorithm-generated shrinkage points, respectively.
@@ -40,7 +52,7 @@ This is the underlying "engine" function implementing CIR. For a quick and somew
 
 Flat intervals in the raw input data, are handled with care. Under the default setting (\code{strict=FALSE,interiorStrict=TRUE}), flat intervals are treated as monotonicity violations, unless the $y$ value is on the boundary of its allowed range (default $[0,1]$, appropriate for binary-response data). On that boundary, flat intervals are left unchanged.
 
-The algorithm is documented and discussed in Oron and Flournoy (2017).
+The algorithm is documented and discussed in Oron and Flournoy (2017). The function now include an \code{adaptiveShrink} option, to mitigate bias caused when using adaptive designs (Flournoy and Oron, 2020).
 }
 \examples{
 # Interesting run (#664) from a simulated up-and-down ensemble:
@@ -80,11 +92,13 @@ legend('topleft',pch=c(NA,'X',NA,NA),lty=c(1,NA,2,1),col=c(2,1,1,1),
 	legend=c('True Curve','Observations','IR','CIR'),bty='n')
 }
 \references{
-Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research, In Press (author's public version available on arxiv.org).
+Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research 9, 258-267. (author's public version available on arxiv.org).
+
+Flournoy, N. and Oron, A.P., 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
 }
 \seealso{
-\code{\link{oldPAVA}},\code{\link{quickIsotone}}
+\code{\link{oldPAVA}},\code{\link{quickIsotone}}; \code{\link{DRshrink}} for explanation about \code{adaptiveShrink}.
 }
 \author{
-Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+Assaf P. Oron \code{<aoron.at.idmod.org>}
 }

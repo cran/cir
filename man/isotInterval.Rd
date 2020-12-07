@@ -4,8 +4,14 @@
 \alias{isotInterval}
 \title{Returns analytical interval estimates, given isotonic-regression (centered or not) point estimates}
 \usage{
-isotInterval(isotPoint, outx = isotPoint$x, conf = 0.9, intfun = morrisCI,
-  sequential = FALSE, parabola = FALSE, ...)
+isotInterval(
+  isotPoint,
+  outx = isotPoint$x,
+  conf = 0.9,
+  intfun = morrisCI,
+  parabola = FALSE,
+  ...
+)
 }
 \arguments{
 \item{isotPoint}{a \code{\link{doseResponse}} object with the x values and isotonic point estimates at design points.}
@@ -15,8 +21,6 @@ isotInterval(isotPoint, outx = isotPoint$x, conf = 0.9, intfun = morrisCI,
 \item{conf}{numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.}
 
 \item{intfun}{the function to be used for interval estimation. Default \code{\link{morrisCI}} (see help on that function for additional options).}
-
-\item{sequential}{logical, should a rough accounting for the added randomness due to the use of a sequential dose-finding design? Default \code{FALSE}.}
 
 \item{parabola}{logical, should the interpolation between design points follow a parabola (\code{TRUE}) to be more conservative, or a straight line (\code{FALSE})? The latter is the default, since these CIs tend to be conservative already.}
 
@@ -81,5 +85,5 @@ Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Inter
 \code{\link{quickIsotone}},\code{\link{quickInverse}},\code{\link{morrisCI}},
 }
 \author{
-Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+Assaf P. Oron \code{<aoron.at.idmod.org>}
 }

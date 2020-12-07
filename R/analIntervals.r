@@ -8,7 +8,7 @@
 #' @seealso \code{\link{quickIsotone}},\code{\link{quickInverse}},\code{\link{morrisCI}},
 #' @example inst/examples/fwdCiExamples.r
 #'
-##' @author Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+##' @author Assaf P. Oron \code{<aoron.at.idmod.org>}
 #' @export
 #' @references Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research, In Press (author's public version available on arxiv.org).
 
@@ -18,11 +18,10 @@
 #' @param outx vector of x values for which estimates will be made. If \code{NULL} (default), this will be set to the set of unique values in isotPoint$x argument (or equivalently in y$x).
 #' @param conf numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.
 #' @param intfun the function to be used for interval estimation. Default \code{\link{morrisCI}} (see help on that function for additional options).
-#' @param sequential logical, should a rough accounting for the added randomness due to the use of a sequential dose-finding design? Default \code{FALSE}.
 #' @param parabola logical, should the interpolation between design points follow a parabola (\code{TRUE}) to be more conservative, or a straight line (\code{FALSE})? The latter is the default, since these CIs tend to be conservative already.
 #' @param ... additional arguments passed on to \code{intfun}
 
-isotInterval<-function(isotPoint,outx=isotPoint$x,conf=0.9,intfun=morrisCI,sequential=FALSE,parabola=FALSE,...)
+isotInterval<-function(isotPoint,outx=isotPoint$x,conf=0.9,intfun=morrisCI,parabola=FALSE,...)
 {
 ## Validation
 if(conf<=0 || conf>=1) stop("Confidence must be between 0 and 1.\n")
@@ -32,16 +31,6 @@ if(min(outx)<min(isotPoint$x) || max(outx)>max(isotPoint$x)) stop("Cannot predic
 ycount=round(isotPoint$weight*isotPoint$y)
 designInt=intfun(phat=isotPoint$y,n=isotPoint$weight,y=ycount,conf=conf,...)
 
-if(sequential) ## correction for sequential designs
-{
-	pi_j=isotPoint$weight/sum(isotPoint$weight)
-	corfac=sqrt(1+(1-pi_j)/isotPoint$weight)
-
-	newidths=(designInt-isotPoint$y)*as.vector(corfac)
-	designInt=newidths+isotPoint$y
-	designInt[designInt<0]=0
-	designInt[designInt>1]=1
-}
 #if(all(outx %in% isotPoint$x)) return(designInt[match(outx,isotPoint$x),])
 
 if(parabola) lcl=parapolate(isotPoint$x,designInt[,1],xout=outx,upward=TRUE) else
@@ -71,22 +60,27 @@ return(data.frame(ciLow=lcl,ciHigh=ucl))
 #' @param estfun the function to be used for point estimation. Default \code{\link{cirPAVA}}.
 #' @param intfun the function to be used for initial (forward) interval estimation. Default \code{\link{morrisCI}} (see help on that function for additional options).
 #' @param conf numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.
-#' @param seqDesign logical, should a rough accounting for the added randomness due to the use of a sequential dose-finding design? Default \code{FALSE}.
 #' @param parabola logical, should the interpolation between design points follow a parabola (\code{TRUE}) or a straight line (\code{FALSE}, default)? See details.
+#' @param adaptiveShrink logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}}.
+#' @param starget The shrinkage target. Defaults to \code{target[1]}.
 #' @param ... additional arguments passed on to \code{\link{quickIsotone}}
 
-#' @seealso \code{\link{quickIsotone}},\code{\link{quickInverse}},\code{\link{isotInterval}},\code{\link{slope}}
+#' @seealso \code{\link{quickIsotone}},\code{\link{quickInverse}},\code{\link{isotInterval}},
+#' \code{\link{slope}}; \code{\link{DRshrink}} for the shrinkage fix.
 #' @example inst/examples/invCiExamples.r
 
 
 #' @export
 
-deltaInverse<-function(y,x=NULL,wt=NULL,target=NULL,estfun=cirPAVA, intfun = morrisCI, conf = 0.9,seqDesign=FALSE,parabola=FALSE,...)
+deltaInverse<-function(y,x=NULL,wt=NULL,target=NULL,estfun=cirPAVA, intfun = morrisCI, conf = 0.9,adaptiveShrink=FALSE,starget=target[1],parabola=FALSE,...)
 {
 dr=doseResponse(y,x,wt)
+# Optional pre-shrinking of y for adaptive designs
+if(adaptiveShrink) dr=DRshrink(y=dr,target=starget,...)
+
 k=length(target)
 # We start by constructing inverse intervals based on design-point estimates
-forward=quickIsotone(dr,outx=NULL,conf=conf,intfun=intfun,seqDesign=seqDesign,estfun=estfun,...)
+forward=quickIsotone(dr,outx=NULL,conf=conf,intfun=intfun,estfun=estfun,...)
 forward$y=round(forward$y,10) ### avoid rounding errors from PAVA
 yvals=sort(unique(forward$y))
 #cat(yvals)

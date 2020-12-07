@@ -18,7 +18,7 @@
 #' @param refsize 	(doseResponse only) a reference size by which the plotting sizes will be divided. Larger values make the symbols smaller. Default is \code{mean(dr$weight)}.
 #' @param ...	Other arguments passed on to \code{\link{plot}}. 
 
-##' @author Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}	  
+##' @author Assaf P. Oron \code{<aoron.at.idmod.org>}	  
 #' @example inst/examples/classExamples.r
 #' @export
 #' @import graphics

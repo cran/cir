@@ -5,16 +5,13 @@
 \alias{is.doseResponse}
 \alias{DRtrace}
 \alias{doseResponse}
-\alias{is.doseResponse}
-\alias{is.DRtrace}
-\alias{doseResponse}
 \title{Constructor functions and class-checking functions for DRtrace and doseResponse classes}
 \usage{
 is.DRtrace(dr)
 
 is.doseResponse(dr)
 
-DRtrace(y, x = NULL, wt = NULL, noyes = FALSE)
+DRtrace(y, x = NULL, wt = NULL, noyes = FALSE, ...)
 
 doseResponse(y, x = NULL, wt = rep(1, length(y)), ...)
 }
@@ -25,7 +22,7 @@ doseResponse(y, x = NULL, wt = rep(1, length(y)), ...)
 
 \item{noyes}{logical, in case of a 2-column input is the 1st column 'no'? Default \code{FALSE}, meaning the 1st column is 'yes'.}
 
-\item{...}{(\code{doseResponse()} only) parameters passed on to \code{DRtrace()}}
+\item{...}{parameters passed on to \code{DRtrace()}, or ignored.}
 }
 \value{
 For constructor functions, the relevant object. For checking functions, a logical value indicating whether the object meets class definition.
@@ -56,5 +53,5 @@ legend(1,1,pch=c(4,19),legend=c('Observations','CIR (IR is same)'),bty='n')
 \code{\link{cirPAVA}}, \code{\link{plot.doseResponse}},\code{\link{plot.DRtrace}}
 }
 \author{
-Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+Assaf P. Oron \code{<aoron.at.idmod.org>}
 }

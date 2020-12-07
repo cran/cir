@@ -12,7 +12,7 @@ This package implements CIR, but "along the way" an enhanced interface to univar
 
 In addition, Oron and Flournoy (2017) also develop theoretically-backed confidence intervals applicable to both CIR and IR. The package's convenience wrapper \code{\link{quickIsotone}} executes CIR (or IR if one chooses \code{estfun = oldPAVA}), and returns both point and interval estimates at the specified x values. 
 
-Since our motivation for studying IR comes from dose-finding designs such as Up-and-Down, there's analogous functionality for dose-finding ("inverse") estimation of x given specified y values. In particular, \code{\link{quickInverse}} offers inverse point and interval estimates in a single call.
+Since our motivation for studying IR comes from dose-finding designs such as Up-and-Down, there's analogous functionality for dose-finding ("inverse") estimation of x given specified y values. In particular, \code{\link{quickInverse}} offers inverse point and interval estimates in a single call. The package now also includes an optional bias-correction shrinkage method for such designs, informed by more recent research (Flournoy and Oron, 2020).
 
 The package's focus is dose-response data with the response assumed binary (coded as 0 or 1). Some functions might work for any input data, but others will not. In particular, the confidence intervals are only applicable to binary-response data.
 
@@ -23,9 +23,10 @@ Enjoy!
 \author{
 Assaf P. Oron.
 
-
-Maintainer: Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+Maintainer: Assaf P. Oron \code{<aoron.at.idmod.org>}
 }
 
-\references{Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research, In Press (author's public version available on arxiv.org).}
+\references{Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research 9, 258-267. (author's public version available on arxiv.org).
+Flournoy, N. and Oron, A.P., 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.}
+
 

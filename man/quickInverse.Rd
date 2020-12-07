@@ -4,9 +4,22 @@
 \alias{quickInverse}
 \title{Point and Interval Inverse Estimation ("Dose-Finding"), using CIR and IR}
 \usage{
-quickInverse(y, x = NULL, wt = NULL, target, estfun = cirPAVA,
-  intfun = morrisCI, delta = TRUE, conf = 0.9, resolution = 100,
-  extrapolate = FALSE, seqDesign = FALSE, parabola = FALSE, ...)
+quickInverse(
+  y,
+  x = NULL,
+  wt = NULL,
+  target,
+  estfun = cirPAVA,
+  intfun = morrisCI,
+  delta = TRUE,
+  conf = 0.9,
+  resolution = 100,
+  extrapolate = FALSE,
+  adaptiveShrink = FALSE,
+  starget = target[1],
+  parabola = FALSE,
+  ...
+)
 }
 \arguments{
 \item{y}{can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object.}
@@ -29,7 +42,9 @@ quickInverse(y, x = NULL, wt = NULL, target, estfun = cirPAVA,
 
 \item{extrapolate}{logical: should extrapolation beyond the range of estimated y values be allowed? Default \code{FALSE}. Note this affects only the point estimate; interval boundaries are not extrapolated.}
 
-\item{seqDesign}{logical: should intervals be further widened using a simple adjustment for the data having been obtained via a sequential (adaptive) design? Default \code{FALSE} due to futility.}
+\item{adaptiveShrink}{logical, should the y-values be pre-shrunk towards an experiment's target? Recommended when the data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}}.}
+
+\item{starget}{The shrinkage target. Defaults to \code{target[1]}.}
 
 \item{parabola}{logical: should the interpolation between design points follow a parabola (\code{TRUE}) or a straight line (\code{FALSE}? The latter is default, because CIs tend to be conservative enough already.}
 

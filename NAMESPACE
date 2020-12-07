@@ -2,6 +2,7 @@
 
 S3method(plot,DRtrace)
 S3method(plot,doseResponse)
+export(DRshrink)
 export(DRtrace)
 export(agcouCI)
 export(cirPAVA)

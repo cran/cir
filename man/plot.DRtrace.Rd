@@ -7,8 +7,15 @@
 \usage{
 \method{plot}{DRtrace}(x, xlab = "Patient Order", ylab = "Dose", ...)
 
-\method{plot}{doseResponse}(x, xlab = "Dose", ylab = "Response",
-  pch = "X", varsize = TRUE, refsize = mean(x$weight), ...)
+\method{plot}{doseResponse}(
+  x,
+  xlab = "Dose",
+  ylab = "Response",
+  pch = "X",
+  varsize = TRUE,
+  refsize = mean(x$weight),
+  ...
+)
 }
 \arguments{
 \item{x}{the object, whether DRtrace or doseResponse}
@@ -54,5 +61,5 @@ legend(1,1,pch=c(4,19),legend=c('Observations','CIR (IR is same)'),bty='n')
 \code{\link{doseResponse}}, \code{\link{DRtrace}}
 }
 \author{
-Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+Assaf P. Oron \code{<aoron.at.idmod.org>}
 }

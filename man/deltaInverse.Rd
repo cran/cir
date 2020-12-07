@@ -4,9 +4,19 @@
 \alias{deltaInverse}
 \title{Calculate inverse (dose-finding) intervals, using local inversion and the Delta method}
 \usage{
-deltaInverse(y, x = NULL, wt = NULL, target = NULL, estfun = cirPAVA,
-  intfun = morrisCI, conf = 0.9, seqDesign = FALSE, parabola = FALSE,
-  ...)
+deltaInverse(
+  y,
+  x = NULL,
+  wt = NULL,
+  target = NULL,
+  estfun = cirPAVA,
+  intfun = morrisCI,
+  conf = 0.9,
+  adaptiveShrink = FALSE,
+  starget = target[1],
+  parabola = FALSE,
+  ...
+)
 }
 \arguments{
 \item{y}{can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object.}
@@ -23,7 +33,9 @@ deltaInverse(y, x = NULL, wt = NULL, target = NULL, estfun = cirPAVA,
 
 \item{conf}{numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.}
 
-\item{seqDesign}{logical, should a rough accounting for the added randomness due to the use of a sequential dose-finding design? Default \code{FALSE}.}
+\item{adaptiveShrink}{logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}}.}
+
+\item{starget}{The shrinkage target. Defaults to \code{target[1]}.}
 
 \item{parabola}{logical, should the interpolation between design points follow a parabola (\code{TRUE}) or a straight line (\code{FALSE}, default)? See details.}
 
@@ -73,5 +85,6 @@ legend('topleft',pch=c(NA,'X',NA,NA),lty=c(1,NA,2,2),col=c(4,1,1,3),legend=
 
 }
 \seealso{
-\code{\link{quickIsotone}},\code{\link{quickInverse}},\code{\link{isotInterval}},\code{\link{slope}}
+\code{\link{quickIsotone}},\code{\link{quickInverse}},\code{\link{isotInterval}},
+\code{\link{slope}}; \code{\link{DRshrink}} for the shrinkage fix.
 }

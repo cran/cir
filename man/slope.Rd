@@ -4,8 +4,7 @@
 \alias{slope}
 \title{Piecewise-linear local slopes given a (non-strictly) monotone x-y sequence}
 \usage{
-slope(x, y, outx = x, allowZero = FALSE, full = FALSE,
-  decreasing = FALSE)
+slope(x, y, outx = x, allowZero = FALSE, full = FALSE, decreasing = FALSE)
 }
 \arguments{
 \item{x}{numeric or integer: input x values, must be strictly increasing}

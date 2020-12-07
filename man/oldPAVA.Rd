@@ -4,8 +4,16 @@
 \alias{oldPAVA}
 \title{Returns standard isotonic-regression estimate, with flexible dose-response input}
 \usage{
-oldPAVA(y, x = NULL, wt = rep(1, length(x)), outx = NULL, full = FALSE,
-  dec = FALSE, ...)
+oldPAVA(
+  y,
+  x = NULL,
+  wt = rep(1, length(x)),
+  outx = NULL,
+  full = FALSE,
+  dec = FALSE,
+  adaptiveShrink = FALSE,
+  ...
+)
 }
 \arguments{
 \item{y}{can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object.}
@@ -19,6 +27,8 @@ oldPAVA(y, x = NULL, wt = rep(1, length(x)), outx = NULL, full = FALSE,
 \item{full}{logical, is a more complete output desired? if \code{FALSE} (default), only a vector of point estimates for y at the provided dose levels is returned}
 
 \item{dec}{logical, is the true function is assumed to be monotone decreasing? Default \code{FALSE}.}
+
+\item{adaptiveShrink}{logical, should the y-values be pre-shrunk towards an experimental target? May be relevant if data were obtain via an adaptive dose-finding design. See \code{\link{DRshrink}}.}
 
 \item{...}{Other arguments passed on to the constructor functions that pre-process the input.}
 }
@@ -42,5 +52,5 @@ Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Inter
 \code{\link{cirPAVA}}
 }
 \author{
-C.R. Raubertas, Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+C.R. Raubertas, Assaf P. Oron \code{<aoron.at.idmod.org>}
 }

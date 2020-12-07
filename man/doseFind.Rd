@@ -4,9 +4,20 @@
 \alias{doseFind}
 \title{Inverse (dose-finding) estimate of a target x value (e.g., a percentile)}
 \usage{
-doseFind(y, x = NULL, wt = NULL, estfun = cirPAVA, target = NULL,
-  full = FALSE, dec = FALSE, extrapolate = FALSE, errOnFlat = FALSE,
-  ...)
+doseFind(
+  y,
+  x = NULL,
+  wt = NULL,
+  estfun = cirPAVA,
+  target = NULL,
+  full = FALSE,
+  dec = FALSE,
+  extrapolate = FALSE,
+  errOnFlat = FALSE,
+  adaptiveShrink = FALSE,
+  starget = target[1],
+  ...
+)
 }
 \arguments{
 \item{y}{can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object.}
@@ -27,6 +38,10 @@ doseFind(y, x = NULL, wt = NULL, estfun = cirPAVA, target = NULL,
 
 \item{errOnFlat}{logical: in case the forward estimate is completely flat making dose-finding infeasible, should an error be returned? Under default (\code{FALSE}), \code{NA}s are returned for the target estimate.}
 
+\item{adaptiveShrink}{logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}}.}
+
+\item{starget}{The shrinkage target. Defaults to \code{target[1]}.}
+
 \item{...}{Other arguments passed on to \code{\link{doseResponse}} and \code{estfun}.}
 }
 \value{
@@ -38,7 +53,8 @@ under default, returns point estimate(s) of the dose (x) for the provided target
 }
 }
 \description{
-Inverse ("dose-finding") point estimation of a dose (x) for a specified target y value (e.g., a response rate), using centered-isotonic-regression (\code{invCIR}) or a generic forward-estimation algorithm (\code{doseFind}).
+Inverse ("dose-finding") point estimation of a dose (x) for a specified target y value (e.g., a response rate), 
+ using a user-specified forward-estimation algorithm (default is CIR).
 }
 \details{
 The function works by calling \code{estfun} for forward estimation of the x-y relationship, then using \code{\link{approx}} with the x and y roles reversed for inverse estimation. The \code{extrapolate} option sets the \code{rule} argumet for this second call: 
@@ -52,5 +68,5 @@ Note also that the function is set up to work with a vector of targets.
 \code{\link{oldPAVA}},\code{\link{cirPAVA}}. If you'd like point and interval estimates together, use \code{\link{quickInverse}}.
 }
 \author{
-Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+Assaf P. Oron \code{<aoron.at.idmod.org>}
 }

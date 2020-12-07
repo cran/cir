@@ -8,11 +8,12 @@
 #'
 #' Flat intervals in the raw input data, are handled with care. Under the default setting (\code{strict=FALSE,interiorStrict=TRUE}), flat intervals are treated as monotonicity violations, unless the $y$ value is on the boundary of its allowed range (default $[0,1]$, appropriate for binary-response data). On that boundary, flat intervals are left unchanged.
 #' 
-#' The algorithm is documented and discussed in Oron and Flournoy (2017). 
+#' The algorithm is documented and discussed in Oron and Flournoy (2017). The function now include an \code{adaptiveShrink} option, to mitigate bias caused when using adaptive designs (Flournoy and Oron, 2020). 
 #' 
-#' @references Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research, In Press (author's public version available on arxiv.org).
+#' @references Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research 9, 258-267. (author's public version available on arxiv.org).
+#' @references Flournoy, N. and Oron, A.P., 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
 
-##' @author Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+##' @author Assaf P. Oron \code{<aoron.at.idmod.org>}
 #' @example inst/examples/cirExamples.r
 
 
@@ -25,20 +26,23 @@
 #' @param strict logical, should CIR enforce strict monotonicity by "fixing" flat intervals as well? Default \code{FALSE}.
 #' @param interiorStrict logical, should CIR enforce strict monotonicity, but only for y values inside of \code{ybounds}?  Default \code{TRUE}. Choosing \code{FALSE} will be overridden if \code{strict=TRUE}, and a warning will be given.
 #' @param ybounds numeric vector of length 2, relevant only under the default setting of \code{strict=FALSE,interiorStrict=TRUE}. Default \code{0:1}. See 'Details'.
-#' @param ...	Other arguments passed on to the constructor functions that pre-process the input.
+#' @param adaptiveShrink logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. If \code{TRUE}, then must also provide a \code{target} argument that will be passed via \code{...}.
+#' @param ...	Other arguments passed on to pre-processing functions.
 
 #' @return under default, returns a vector of y estimates at unique x values. With \code{full=TRUE}, returns a list of 3 \code{\link{doseResponse}} objects name \code{output,input,shrinkage} for the output data at dose levels, the input data, and the function as fit at algorithm-generated shrinkage points, respectively.
 
-#' @seealso \code{\link{oldPAVA}},\code{\link{quickIsotone}}
+#' @seealso \code{\link{oldPAVA}},\code{\link{quickIsotone}}; \code{\link{DRshrink}} for explanation about \code{adaptiveShrink}.
 #' @export
 #' 
-cirPAVA <-function (y,x=NULL,wt=NULL,outx=NULL,full=FALSE,dec=FALSE,strict=FALSE,interiorStrict=TRUE,ybounds=0:1,...) {
+cirPAVA <-function (y,x=NULL,wt=NULL,outx=NULL,full=FALSE,dec=FALSE,strict=FALSE,interiorStrict=TRUE,ybounds=0:1,adaptiveShrink=FALSE,...) {
 
 ### converting to doseResponse object 
 ### Basically it's a numeric data frame with x,y,weight, and x increasing
 
 dr=doseResponse(y=y,x=x,wt=wt,...)
 if (any(is.na(dr))) stop ("Missing values are not allowed.\n")  
+# Optional pre-shrinking of y for adaptive designs
+if(adaptiveShrink) dr=DRshrink(y=dr,...)
 
 ### Predictions will be delivered for x=outx
 if(is.null(outx)) outx=dr$x
@@ -126,7 +130,7 @@ if (!full) {
 #' An analogous function for dose-finding (inverse estimation) is \code{\link{quickInverse}}.
 #'
 #'
-##' @author Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+##' @author Assaf P. Oron \code{<aoron.at.idmod.org>}
 #' @example inst/examples/cirExamples.r
 #' @export
 
@@ -149,13 +153,15 @@ if (!full) {
 #' @param estfun the function to be used for point estimation. Default \code{\link{cirPAVA}}.
 #' @param intfun the function to be used for interval estimation. Default \code{\link{wilsonCI}} (see help on that function for additional options).
 #' @param conf numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.
-#' @param seqDesign logical, should intervals be further widened using a simple adjustment for the data having been obtained via a sequential (adaptive) design? Default \code{FALSE} due to futility.
+#' @param adaptiveShrink logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. If \code{TRUE}, then must also provide a \code{target} argument that will be passed via \code{...}.
 #' @param parabola logical, should interpolated interval boundaries between observations be parabolically curved outwards to allow for more uncertainty? Default \code{FALSE}
 #' @param ...	arguments passed on to other functions (constructor, point estimate and interval estimate).
 
-quickIsotone<-function (y,x=NULL,wt=rep(1,length(y)),outx=NULL,dec=FALSE,estfun=cirPAVA,intfun=morrisCI,conf=0.9,seqDesign=FALSE,parabola=FALSE,...) 
+quickIsotone<-function (y,x=NULL,wt=rep(1,length(y)),outx=NULL,dec=FALSE,estfun=cirPAVA,intfun=morrisCI,conf=0.9,adaptiveShrink=FALSE,parabola=FALSE,...) 
 {
 dr=doseResponse(y=y,x=x,wt=wt,...)
+# Adaptive-design shrinkage fix
+if(adaptiveShrink) dr=DRshrink(y=dr,...)
 if(is.null(outx)) outx=dr$x
 
 pestimate=estfun(y=dr,dec=dec,full=TRUE,...)
@@ -163,7 +169,7 @@ pestimate=estfun(y=dr,dec=dec,full=TRUE,...)
 #a	pestimate=cirPAVA(y=dr,dec=dec,full=TRUE,...)
 #} else pestimate=oldPAVA(y=dr,dec=dec,full=TRUE,...)
 
-cestimate=isotInterval(pestimate$output,conf=conf,intfun=intfun,outx=outx,sequential=seqDesign,parabola=parabola,...)
+cestimate=isotInterval(pestimate$output,conf=conf,intfun=intfun,outx=outx,parabola=parabola,...)
 
 if(all(outx %in% dr$x)) 
 {

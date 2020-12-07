@@ -4,9 +4,19 @@
 \alias{quickIsotone}
 \title{One-Stop-shop Forward point and interval estimation via CIR or IR}
 \usage{
-quickIsotone(y, x = NULL, wt = rep(1, length(y)), outx = NULL,
-  dec = FALSE, estfun = cirPAVA, intfun = morrisCI, conf = 0.9,
-  seqDesign = FALSE, parabola = FALSE, ...)
+quickIsotone(
+  y,
+  x = NULL,
+  wt = rep(1, length(y)),
+  outx = NULL,
+  dec = FALSE,
+  estfun = cirPAVA,
+  intfun = morrisCI,
+  conf = 0.9,
+  adaptiveShrink = FALSE,
+  parabola = FALSE,
+  ...
+)
 }
 \arguments{
 \item{y}{can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object.}
@@ -25,7 +35,7 @@ quickIsotone(y, x = NULL, wt = rep(1, length(y)), outx = NULL,
 
 \item{conf}{numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.}
 
-\item{seqDesign}{logical, should intervals be further widened using a simple adjustment for the data having been obtained via a sequential (adaptive) design? Default \code{FALSE} due to futility.}
+\item{adaptiveShrink}{logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. If \code{TRUE}, then must also provide a \code{target} argument that will be passed via \code{...}.}
 
 \item{parabola}{logical, should interpolated interval boundaries between observations be parabolically curved outwards to allow for more uncertainty? Default \code{FALSE}}
 
@@ -88,5 +98,5 @@ legend('topleft',pch=c(NA,'X',NA,NA),lty=c(1,NA,2,1),col=c(2,1,1,1),
 \code{\link{cirPAVA}},\code{\link{oldPAVA}},\code{\link{isotInterval}},\code{\link{quickInverse}},\code{\link{doseResponse}}
 }
 \author{
-Assaf P. Oron \code{<assaf.oron.at.seattlechildrens.org>}
+Assaf P. Oron \code{<aoron.at.idmod.org>}
 }
