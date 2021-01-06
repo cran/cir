@@ -28,9 +28,9 @@ doseFind(
 
 \item{estfun}{the name of the dose-response estimation function. Default \code{\link{cirPAVA}}.}
 
-\item{target}{A vector of target response rate(s), for which the percentile dose estimate is needed.}
+\item{target}{A vector of target response rate(s), for which the percentile dose estimate is needed. See Note.}
 
-\item{full}{logical, is a more complete output desired (relevant only for doseFind)? if \code{FALSE} (default), only a point estimate of the dose (x) for the provided target rate is returned}
+\item{full}{logical, is a more complete output desired (relevant only for doseFind)? if \code{FALSE} (default), only a point estimate of the dose (x) for the provided target rate is returned.}
 
 \item{dec}{(relevant only for doseFind) logical, is the true function is assumed to be monotone decreasing? Default \code{FALSE}.}
 
@@ -38,7 +38,7 @@ doseFind(
 
 \item{errOnFlat}{logical: in case the forward estimate is completely flat making dose-finding infeasible, should an error be returned? Under default (\code{FALSE}), \code{NA}s are returned for the target estimate.}
 
-\item{adaptiveShrink}{logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}}.}
+\item{adaptiveShrink}{logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}} and the Note.}
 
 \item{starget}{The shrinkage target. Defaults to \code{target[1]}.}
 
@@ -63,6 +63,12 @@ The function works by calling \code{estfun} for forward estimation of the x-y re
 \item{}{\code{extrapolate=FALSE} (default) translates to \code{rule=1}, which means an \code{NA} will be returned for any target y value lying outside the estimated y range.}
 }
 Note also that the function is set up to work with a vector of targets.
+}
+\note{
+If the data were obtained from an adaptive dose-finding design and you seek to estimate a dose other than the experiment's target, note that away from the target the estimates are likely biased (Flournoy and Oron, 2019). Use \code{adaptiveShrink=TRUE} to mitigate the bias. In addition, either provide the true target as \code{starget}, or a vector of values to \code{target}, with the first value being the true target.
+}
+\references{
+Flournoy N and Oron AP, 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
 }
 \seealso{
 \code{\link{oldPAVA}},\code{\link{cirPAVA}}. If you'd like point and interval estimates together, use \code{\link{quickInverse}}.

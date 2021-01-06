@@ -18,7 +18,7 @@
 #' @param outx vector of x values for which estimates will be made. If \code{NULL} (default), this will be set to the set of unique values in isotPoint$x argument (or equivalently in y$x).
 #' @param conf numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.
 #' @param intfun the function to be used for interval estimation. Default \code{\link{morrisCI}} (see help on that function for additional options).
-#' @param parabola logical, should the interpolation between design points follow a parabola (\code{TRUE}) to be more conservative, or a straight line (\code{FALSE})? The latter is the default, since these CIs tend to be conservative already.
+#' @param parabola logical: should the confidence-interval's interpolation between points with observations follow a parabola (\code{TRUE}) creating broader intervals between observations, or a straight line (\code{FALSE}, default)?
 #' @param ... additional arguments passed on to \code{intfun}
 
 isotInterval<-function(isotPoint,outx=isotPoint$x,conf=0.9,intfun=morrisCI,parabola=FALSE,...)
@@ -60,7 +60,7 @@ return(data.frame(ciLow=lcl,ciHigh=ucl))
 #' @param estfun the function to be used for point estimation. Default \code{\link{cirPAVA}}.
 #' @param intfun the function to be used for initial (forward) interval estimation. Default \code{\link{morrisCI}} (see help on that function for additional options).
 #' @param conf numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.
-#' @param parabola logical, should the interpolation between design points follow a parabola (\code{TRUE}) or a straight line (\code{FALSE}, default)? See details.
+#' @param parabola logical: should the confidence-interval's interpolation between points with observations follow a parabola (\code{TRUE}) creating broader intervals between observations, or a straight line (\code{FALSE}, default)?
 #' @param adaptiveShrink logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}}.
 #' @param starget The shrinkage target. Defaults to \code{target[1]}.
 #' @param ... additional arguments passed on to \code{\link{quickIsotone}}
@@ -90,7 +90,7 @@ fslopes=slope(dr$x,forward$y)
 # inverse widths raw
 rwidths=(forward$y-forward$lower)/fslopes
 lwidths=(forward$y-forward$upper)/fslopes
-
+# Adding the widths to the mean curve, self-consistently
 rbounds=rev(cummin(rev(tapply(dr$x+rwidths,forward$y,max))))
 lbounds=cummax(tapply(dr$x+lwidths,forward$y,min))
 designCIs=cbind(lbounds,rbounds)[match(forward$y,yvals),]

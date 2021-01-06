@@ -193,7 +193,7 @@ return(list(rawslopes=slopes,initial=candidate0,final=candidate))
 #' @param ... parameters passed on to \code{doseResponse()} 
 #' 
 #' @export
-DRshrink<-function(y,x=NULL,wt0=NULL,target,swt=1,nmin=1,...) 
+DRshrink<-function(y,x=NULL,wt0=NULL,target,swt=1,nmin=2,...) 
 {
 if(length(target)>1) stop('Shrinkage target must be a single constant.\n')
 dr=doseResponse(y=y,x=x,wt=wt0,...)

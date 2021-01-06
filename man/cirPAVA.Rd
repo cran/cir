@@ -19,7 +19,7 @@ cirPAVA(
 )
 }
 \arguments{
-\item{y}{can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object.}
+\item{y}{can be either of the following: y values (response rates), a \code{\link{DRtrace}} object,a \code{\link{doseResponse}} object, or valid input (potentially together with \code{x,wt}) to generate a \code{\link{doseResponse}} object. See \code{\link{doseResponse}} help for more.}
 
 \item{x}{dose levels (if not included in y).}
 
@@ -67,7 +67,7 @@ quick0
 
 ### Showing the data and the fits
 par(mar=c(3,3,1,1),mgp=c(2,.5,0),tcl=-0.25)
-plot(dat,ylim=c(0.05,0.55),refsize=4,las=1) # uses plot.doseResponse()
+plot(dat,ylim=c(0.05,0.55),refsize=1,las=1) # uses plot.doseResponse()
 # The IR fit: a straightforward interpolation
 lines(quick0$y,lty=2) 
 

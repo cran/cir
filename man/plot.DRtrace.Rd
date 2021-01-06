@@ -5,7 +5,14 @@
 \alias{plot.doseResponse}
 \title{PLotting Methods for DRtrace, doseResponse Objects}
 \usage{
-\method{plot}{DRtrace}(x, xlab = "Patient Order", ylab = "Dose", ...)
+\method{plot}{DRtrace}(
+  x,
+  xlab = "Patient Order",
+  ylab = "Dose",
+  shape = "circle",
+  connect = TRUE,
+  ...
+)
 
 \method{plot}{doseResponse}(
   x,
@@ -13,7 +20,8 @@
   ylab = "Response",
   pch = "X",
   varsize = TRUE,
-  refsize = mean(x$weight),
+  refsize = 1/mean(x$weight),
+  connect = FALSE,
   ...
 )
 }
@@ -21,6 +29,10 @@
 \item{x}{the object, whether DRtrace or doseResponse}
 
 \item{xlab, ylab}{x-axis and y-axis labels passed on to \code{\link{plot}}}
+
+\item{shape}{the plotting shape (DRtrace only): 'circle' (default), 'square', or 'triangle'}
+
+\item{connect}{logical: whether to connect the symbols (generic plotting type 'b'). Default \code{TRUE} for \code{\link{DRtrace}} and \code{FALSE} for \code{\link{doseResponse}}}
 
 \item{...}{Other arguments passed on to \code{\link{plot}}.}
 

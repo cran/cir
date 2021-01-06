@@ -7,7 +7,7 @@
 quickIsotone(
   y,
   x = NULL,
-  wt = rep(1, length(y)),
+  wt = NULL,
   outx = NULL,
   dec = FALSE,
   estfun = cirPAVA,
@@ -70,7 +70,7 @@ quick0
 
 ### Showing the data and the fits
 par(mar=c(3,3,1,1),mgp=c(2,.5,0),tcl=-0.25)
-plot(dat,ylim=c(0.05,0.55),refsize=4,las=1) # uses plot.doseResponse()
+plot(dat,ylim=c(0.05,0.55),refsize=1,las=1) # uses plot.doseResponse()
 # The IR fit: a straightforward interpolation
 lines(quick0$y,lty=2) 
 

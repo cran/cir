@@ -37,7 +37,7 @@ deltaInverse(
 
 \item{starget}{The shrinkage target. Defaults to \code{target[1]}.}
 
-\item{parabola}{logical, should the interpolation between design points follow a parabola (\code{TRUE}) or a straight line (\code{FALSE}, default)? See details.}
+\item{parabola}{logical: should the confidence-interval's interpolation between points with observations follow a parabola (\code{TRUE}) creating broader intervals between observations, or a straight line (\code{FALSE}, default)?}
 
 \item{...}{additional arguments passed on to \code{\link{quickIsotone}}}
 }

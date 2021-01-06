@@ -4,7 +4,7 @@
 \alias{DRshrink}
 \title{Shrinkage fix to bias in observed rates under adaptive dose-finding design}
 \usage{
-DRshrink(y, x = NULL, wt0 = NULL, target, swt = 1, nmin = 1, ...)
+DRshrink(y, x = NULL, wt0 = NULL, target, swt = 1, nmin = 2, ...)
 }
 \arguments{
 \item{y}{can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object.}

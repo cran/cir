@@ -22,7 +22,7 @@ isotInterval(
 
 \item{intfun}{the function to be used for interval estimation. Default \code{\link{morrisCI}} (see help on that function for additional options).}
 
-\item{parabola}{logical, should the interpolation between design points follow a parabola (\code{TRUE}) to be more conservative, or a straight line (\code{FALSE})? The latter is the default, since these CIs tend to be conservative already.}
+\item{parabola}{logical: should the confidence-interval's interpolation between points with observations follow a parabola (\code{TRUE}) creating broader intervals between observations, or a straight line (\code{FALSE}, default)?}
 
 \item{...}{additional arguments passed on to \code{intfun}}
 }

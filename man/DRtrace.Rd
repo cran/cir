@@ -13,12 +13,12 @@ is.doseResponse(dr)
 
 DRtrace(y, x = NULL, wt = NULL, noyes = FALSE, ...)
 
-doseResponse(y, x = NULL, wt = rep(1, length(y)), ...)
+doseResponse(y, x = NULL, wt = rep(1, length(y)), noyes = FALSE, ...)
 }
 \arguments{
 \item{dr}{the object being checked}
 
-\item{y, x, wt}{see help to \code{\link{cirPAVA}}.}
+\item{y, x, wt}{see Details.}
 
 \item{noyes}{logical, in case of a 2-column input is the 1st column 'no'? Default \code{FALSE}, meaning the 1st column is 'yes'.}
 
@@ -29,6 +29,11 @@ For constructor functions, the relevant object. For checking functions, a logica
 }
 \description{
 Functions to create and sanity-check objects of the \code{DRtrace} (dose-response experiment trace/trajectory) and \code{doseResponse} (dose-response raw summary) classes. Note that the latter inherits from the former, purely for programming-convenience reasons.
+}
+\details{
+The input argument \code{y} can include the entire information, or as little as the \code{y} vector of responses (for a \code{DRtrace} object) or response rates (\code{doseResponse}). When including the entire information, it has to be a data frame with at least \code{y} (both y and x for \code{DRtrace}), or a two-column matrix with 'yes' and 'no' responses (assumed in this order, but can be the reverse with \code{noyes=TRUE}). In this case the doses \code{x} can be provided as a separate vector, or as the matrix row names. \code{doseResponse} will return an error if there are any duplicates in \code{x}.
+
+Even though both \code{DRtrace} and \code{doseResponse} accept two-column yes/no matrix input, the interpretation is different. For the former, this form of input is intended mostly to enable shorthand input when the experiment was run in cohorts. Each row represents a cohort's results, and rows must be in the order the experiment was run. For the latter, the yes-no table is a summary tabulation of responses and is treated accordingly, including rearrangement of rows to increasing \code{x}.
 }
 \examples{
 ## Summary of raw data from the notorious Neuenschwander et al. (Stat. Med., 2008) trial
