@@ -4,7 +4,15 @@
 \alias{slope}
 \title{Piecewise-linear local slopes given a (non-strictly) monotone x-y sequence}
 \usage{
-slope(x, y, outx = x, allowZero = FALSE, full = FALSE, decreasing = FALSE)
+slope(
+  x,
+  y,
+  outx = x,
+  allowZero = FALSE,
+  tol = 1e-04,
+  full = FALSE,
+  decreasing = FALSE
+)
 }
 \arguments{
 \item{x}{numeric or integer: input x values, must be strictly increasing}
@@ -14,6 +22,8 @@ slope(x, y, outx = x, allowZero = FALSE, full = FALSE, decreasing = FALSE)
 \item{outx}{numeric or integer: x values at which slopes are desired (default: same as input values)}
 
 \item{allowZero}{logical: should zero be allowed in the output? Default \code{FALSE}}
+
+\item{tol}{tolerance level: when \code{allowZero=FALSE}, slope below that value is considered zero. Default 1e-4. Might need to change if you use unusual units for x or y.}
 
 \item{full}{logical: should a more detailed output be provided? Default \code{FALSE} (see details under 'Value').}
 

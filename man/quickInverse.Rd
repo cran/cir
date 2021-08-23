@@ -17,7 +17,7 @@ quickInverse(
   extrapolate = FALSE,
   adaptiveShrink = FALSE,
   starget = target[1],
-  parabola = FALSE,
+  adaptiveCurve = FALSE,
   ...
 )
 }
@@ -46,7 +46,7 @@ quickInverse(
 
 \item{starget}{The shrinkage target. Defaults to \code{target[1]}.}
 
-\item{parabola}{logical: should the confidence-interval's interpolation between points with observations follow a parabola (\code{TRUE}) creating broader intervals between observations, or a straight line (\code{FALSE}, default)?}
+\item{adaptiveCurve}{logical, should the CIs be expanded by using a parabolic curve between estimation points rather than straight interpolation (default \code{FALSE})? Recommended when adaptive design was used and \code{target} is not 0.5.}
 
 \item{...}{Other arguments passed on to \code{\link{doseFind}} and \code{\link{quickIsotone}}, and onwards from there.}
 }
@@ -63,9 +63,8 @@ Convenience wrapper for point and interval estimation of the "dose" that would g
 }
 \details{
 The inverse point estimate is calculated in a straightforward manner from a forward estimate, using \code{\link{doseFind}}. For the inverse interval, the default option (\code{delta=TRUE}) calls \code{\link{deltaInverse}} for a "local" (Delta) inversion of the forward intervals. 
-If \code{delta=FALSE}, a second call to \code{\link{quickIsotone}} genderates a high-resolution grid outlining the forward intervals. Then the algorithm "draws a horizontal line" at \code{y=target} to find the right and left bounds on this grid. Note that the right (upper) dose-finding confidence bound is found on the lower forward confidence bound, and vice versa.
-}
-\note{
+If \code{delta=FALSE}, a second call to \code{\link{quickIsotone}} generates a high-resolution grid outlining the forward intervals. Then the algorithm "draws a horizontal line" at \code{y=target} to find the right and left bounds on this grid. Note that the right (upper) dose-finding confidence bound is found on the lower forward confidence bound, and vice versa. This approach is not recommended, tending to produce CIs that are too wide.
+
 If the data were obtained from an adaptive dose-finding design and you seek to estimate a dose other than the experiment's target, note that away from the target the estimates are likely biased (Flournoy and Oron, 2019). Use \code{adaptiveShrink=TRUE} to mitigate the bias. In addition, either provide the true target as \code{starget}, or a vector of values to \code{target}, with the first value being the true target.
 }
 \examples{

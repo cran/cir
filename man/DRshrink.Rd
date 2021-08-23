@@ -37,5 +37,5 @@ on the shrunk data.
 Flournoy N and Oron AP, 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
 }
 \author{
-Assaf P. Oron \code{<aoron.at.idmod.org>}
+Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 }

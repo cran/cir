@@ -3,7 +3,7 @@
 \name{plot.DRtrace}
 \alias{plot.DRtrace}
 \alias{plot.doseResponse}
-\title{PLotting Methods for DRtrace, doseResponse Objects}
+\title{Plotting Methods for DRtrace, doseResponse Objects}
 \usage{
 \method{plot}{DRtrace}(
   x,
@@ -73,5 +73,5 @@ legend(1,1,pch=c(4,19),legend=c('Observations','CIR (IR is same)'),bty='n')
 \code{\link{doseResponse}}, \code{\link{DRtrace}}
 }
 \author{
-Assaf P. Oron \code{<aoron.at.idmod.org>}
+Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 }

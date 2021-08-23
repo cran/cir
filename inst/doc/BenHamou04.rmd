@@ -1,0 +1,171 @@
+---
+title: "Vignette for 'cir' Package"
+subtitle: "Using Up-and-Down data from Benhamou et al. (2004)"
+author: "Assaf Oron"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette for 'cir' Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#"
+)
+```
+
+## Background
+
+We demonstrate the `cir` package with data from the anesthesiology experiment of Benhamou et al.^[Benhamou D, Ghosh C, Mercier FJ. A Randomized Sequential Allocation Study to Determine the Minimum Effective Analgesic Concentration of Levobupivacaine and Ropivacaine in Patients Receiving Epidural Analgesia for Labor. Anesthesiology. 2003;99(6):1383-1386.]. This experiment used the Up-and-Down (UD) dose-finding design, and was re-analyzed a few years later by Pace and Stylianou.^[Pace NL, Stylianou MP. Advances in and Limitations of Up-and-down Methodology: A Précis of Clinical Use, Study Design, and Dose Estimation in Anesthesia Research. Anesthesiology. 2007;107(1):144-152.] Here we re-analyze them again using state-of-the-art Centered Isotonic Regression (CIR),^[Oron AP, Flournoy N. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Stat Biopharm Res. 2017;9(3):258-267.] the core estimator found in our package.
+
+The study randomized women in labor into two groups, receiving as analgesic either ropivacaine or levobupivacaine, to estimate each agent’s median effective dose (ED$_{50}$) for this condition, and test whether they are different. The original study used a "traditional" dose-averaging estimation method, concluding that even though levobupivacaine seemed 19% more potent, the difference between ED$_{50}$‘s, and hence the difference in potency, was not significant. To derive inference about this difference, they apparently used the standard errors of the dose averages in a $t$-test like manner.
+
+Pace and Stylianou re-analyzed the data using isotonic regression (IR) and 83% bootstrap confidence intervals (CIs); under certain assumptions, examining whether these CIs overlap is equivalent to rejecting the Null hypothesis. ^[Payton ME, Greenstone MH, Schenker N. Overlapping confidence intervals or standard error intervals:  What do they mean in terms of statistical significance? J Insect Sci. 2003;3(1).] They found a larger and statistically significant difference between the two ED$_{50}$‘s. Per their estimates, levobupivacaine was 37% more potent.
+
+Here we revisit this experiment yet again.
+
+## Experimental Trajectories
+
+Since UD datasets are rather compact, adding the data takes no more than 2-3 lines of code. But you can also use `.csv` file input if preferred, with two columns headed “x” and “y”. We do not have the original data table, nor do the original authors have access to it anymore; but we can read the sequence of administered doses off of Benhamou et al.’s Figure 1. 
+
+
+The figure sizes have been customised so that you can easily put two images side-by-side. 
+
+```{r data}
+# For brevity, we initially use integers to denote the doses. 
+# We make use of R’s shorthand for consecutive sequences, 
+# e.g., 1:3 is really 1,2,3
+xropi = c(11:9,10:8,9,10,9,10:7,8:11,10:12,11:7,8,7:10,9,8,9,8:10,9,10,9,10)
+xlevo = c(11,10,11,10,11:9,10:7,8,7,8:5,6:8,7,8:6,7,6,7,6,7:5,6,7,6:12)
+```
+
+The study design being *"classical"* or median-finding UD, the responses ($y$) can be read off directly from the doses ($x$): a positive increment indicates no effectiveness ($y=0$), and vice versa. Symbolically,  $$y = \left( 1-diff(x) \right) / 2.$$ We use this and the `DRtrace()` constructor utility, to create objects that store doses (converted to their physical units) and responses; as we call them here, the experimental "trace" or **trajectory.**
+
+```{r DRtrace}
+library(cir)
+bhamou03ropi = DRtrace(x=xropi[-40]/100, y=(1-diff(xropi))/2)
+bhamou03levo = DRtrace(x=xlevo[-40]/100, y=(1-diff(xlevo))/2)
+```
+
+In the construction above, we gave up the 40th and last observation in each arm, because we only know its dose but not the response. 
+
+`DRtrace` objects have a native plotting method:
+
+```{r tracefig,fig.width=9,fig.height=4.5,out.height=400,out.width=800}
+par(mfrow=c(1,2), las=1, mar=c(4,4,4,1)) # image format parameters
+doserange = c(5,12)/100
+
+plot(bhamou03ropi, ylim=doserange, ylab="Concentration (%)", main='Ropivacaine Arm')
+legend('bottomright',legend=c('Effective','Ineffective'),pch=c(19,1),bty='n')
+plot(bhamou03levo, ylim=doserange, ylab="Concentration (%)", main='Levobupivacaine Arm')
+```
+
+## ED$_{50}$ Estimates
+
+To derive IR and CIR estimates, we take the `DRtrace` trajectory objects and generate `doseResponse` dose-rate-count summaries.
+
+```{r doseResponse}
+bhamou03ropiRates = doseResponse(bhamou03ropi)
+bhamou03levoRates = doseResponse(bhamou03levo)
+knitr::kable(bhamou03ropiRates, row.names=FALSE,align='ccr',digits=c(2,4,0))
+knitr::kable(bhamou03levoRates, row.names=FALSE,align='ccr',digits=c(2,4,0))
+```
+
+From here, ED$_{50}$ estimation is one step away:
+
+```{r cir}
+ropiTargetCIR=quickInverse(bhamou03ropiRates, target=0.5, adaptiveShrink=TRUE)
+ropiTargetCIR 
+levoTargetCIR=quickInverse(bhamou03levoRates, target=0.5, adaptiveShrink=TRUE)
+levoTargetCIR
+```
+
+### Notes
+ - The estimate appears under the word `point`: 0.0938% for ropivacaine and 0.0684% for  levobupivacaine.
+ - We specify the target as a fraction, via the `target` argument.
+ - Default CIs are 90% rather than 95%, due to the large variabily in these typical small-sample experiments. To change it use the `conf` argument.
+ - The `adaptiveShrink` option performs an empirical correction the bias induced by the adaptive design, a bias discovered and described recently by Flournoy and Oron.^[Flournoy N, Oron AP. Bias induced by adaptive dose-finding designs. J Appl Stat. 2020;47(13-15):2431-2442.] It is induced not just by UD designs, but also by model-based designs such as the Continual Reassessment Method. **Because of this bias, we strongly recommend to *not* estimate any target except 0.5 from these data, except for exploratory/illustrative purposes.** The correction serves mostly to provide better CI coverage for the target dose estimate.
+ - In an experiment with non-median targets such as the ED$_{90}$, we recommend adding the option `adaptiveCurve=TRUE` to the command above. This broadens the confidence intervals a bit to ensure proper coverage, which is more challenging the closer the target gets to the edge of the dose-response curve.
+ 
+Let us calculate 83% CIs, to evaluate the evidence for different potencies via the overlapping-intervals method.
+
+```{r ci83}
+quickInverse(bhamou03ropiRates, target=0.5, adaptiveShrink=TRUE, conf=0.83)
+quickInverse(bhamou03levoRates, target=0.5, adaptiveShrink=TRUE, conf=0.83)
+```
+
+The lower 83% confidence limit for ropivacaine's ED$_{50}$ is almost touching the upper 83% limit for levobupivacaine, but there’s no overlap. One may conclude that there is moderate evidence for a difference in potency at the $\alpha=0.05$ level.
+Thus, our conclusion is similar to Pace and Stylianou’s reanalysis, but not as strong. Our point estimates are also very similar to theirs, and so is the levo/ropi potency ratio (1.37, quite a bit higher than Benhamou et al.’s 1.19). This should not be too surprising, because CIR is a direct upgrade of IR which Pace and Stylianou used, whereas Benhamou et al. used dose averaging. 
+
+Looking more closely for the source of discrepancy, the difference is not in the ropivacaine estimates (0.092 vs. 0.093, and 0.094, by Benhamou et al., Pace-Stylianou, and us, respectively) - but rather in levobupivacaine (0.077, 0.068, 0.068). Looking even deeper, the relatively high dose-avaeraging estimate for levobupivacaine in the original article is mostly due to the experiment’s meandering (rather than straight) path downward to the region where most of the doses were given. There is reason to suspect that the starting-point effect was not mitigated well enough. The original dose-averaging estimate probably excluded only the first 1-2 doses. If one excludes, say, the first 10 doses, the average gets closer to IR/CIR (0.072), and the difference may become significant. 
+
+Speaking of Pace and Stylianou’s point estimates, we can use the same quickInverse() function to reproduce them:
+
+```{r pacesty}
+quickInverse(bhamou03ropiRates, target=0.5, estfun=oldPAVA, conf=0.83)
+quickInverse(bhamou03levoRates, target=0.5, estfun=oldPAVA, conf=0.83)
+```
+
+
+Note the argument specifying the `oldPAVA()` estimation function (PAVA is the name of the leading algorithm to produce IR estimates; the package default is `cirPAVA()`, i.e., CIR). 
+
+Our confidence intervals are still different from Pace and Stylianou’s, even when using the same point-estimation method. For intervals they used the bootstrap, whereas we use an analytical approach based on Morris’ theoretical work and the Delta method.^[Morris MD. Small-Sample Confidence Limits for Parameters under Inequality Constraints with Application to Quantal Bioassay. Biometrics. 1988;44:1083-1092.
+] Their levobupivacaine 83% CI is slightly wider than ours (0.059-0.081 vs. 0.059-0.080), but their ropivacaine interval is substantially narrower (0.087-0.097 vs. 0.085-0.101). The latter is the more typical difference between the two approaches. In fact, their ropivacaine 83% bootstrap CI is unrealistically narrow given the amount of information in the experiment, taking up only a single dose spacing (0.01). 
+
+## Visualizing on the Dose-Response Plane
+
+To construct the full estimated $F(x)$ curves from IR and CIR, we call `cir`'s *"long-form"* forward-estimation functions: 
+
+```{r forward}
+ropiCurveIR = oldPAVA(bhamou03ropiRates, full=TRUE)
+ropiCurveCIR = cirPAVA(bhamou03ropiRates, target=0.5, adaptiveShrink=TRUE, full=TRUE)
+levoCurveIR = oldPAVA(bhamou03levoRates, full=TRUE)
+levoCurveCIR = cirPAVA(bhamou03levoRates, target=0.5, adaptiveShrink=TRUE, full=TRUE)
+```
+
+Each of these returns a list of three `doseResponse` objects. Here's one of the lists:
+```{r forward2}
+ropiCurveCIR
+```
+
+`$input` is the incoming data, `$output` the estimates at the same doses, and `$shrinkage` the doses where the algorithm makes the estimates (then interpolated to generate `$output`). With `oldPAVA()` this will always be identical to `$output`.
+
+**Note:** To obtain a quick, "short-form" forward estimate -- the forward analogue of `quickInverse()` used above -- use `quickIsotone()`. You will get an output similar to the `$output` object, together with confidence intervals for each dose. That function's arguments are similar to `quickInverse()`.
+
+We end with the dose-response plots.
+
+```{r drfig,fig.width=10,fig.height=5,out.height=400,out.width=800}
+par(mfrow=c(1,2), las=1, mar=c(4,4,4,1)) # image format parameters
+plot(bhamou03ropiRates, xlab="Concentration (%)", 
+ylab="Proportion Effective", main='Ropivacaine Arm')
+# Adding IR and CIR lines with the same colors/lines as article’s Fig. 4
+lines(y~x, data=ropiCurveIR$output, lty=2)
+lines(y~x, data=ropiCurveCIR$shrinkage, col='blue',lwd=2)
+# Showing the CIR estimate, and confidence interval as a horizontal line
+points(target~point, data=ropiTargetCIR, col='purple', pch=19, cex=2)
+lines(c(ropiTargetCIR$lower90conf,ropiTargetCIR$upper90conf), rep(0.5,2), col='purple', lwd=2)
+
+# Adding legend:
+legend('bottomright', legend=c("Observed Proportions",'Isotonic Regression',
+                              'Centered Isotonic Regression','Estimate +/- 90% CI'),
+       bty='n',pch=c(4,rep(NA,2),16),col=c('black','black','blue','purple'),lty=c(0,2,1,1))
+
+### Now, second plot for Levobupivacaine
+plot(bhamou03levoRates, xlab="Concentration (%)", 
+ylab="Proportion Effective", main='Levobupivacaine Arm', ylim=0:1)
+lines(y~x, data=levoCurveIR$output, lty=2)
+lines(y~x, data=levoCurveCIR$shrinkage, col='blue',lwd=2)
+points(target~point, data=levoTargetCIR, col='purple', pch=19, cex=2)
+lines(c(levoTargetCIR$lower90conf,levoTargetCIR$upper90conf), rep(0.5,2), col='purple', lwd=2)
+```
+
+### Notes
+
+ - The ‘x’ symbols showing the observed response rates come in varying sizes: the area they occupy is proportional to the number of observations. This is the  `plot.doseResponse` default; to change it use `varsize=FALSE`.
+ - In this demonstration the CIR curves differ from the ordinary IR curves not only in the CIR algorithm that “shrinks” horizontal intervals to single points, but also in the bias correction. In principle this correction is compatible with both methods, but here we applied it only to CIR, because it did not exist at the time of Pace and Stylianou’s article.
+
+
+## References

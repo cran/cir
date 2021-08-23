@@ -11,7 +11,7 @@
 #' note that unlike centered-isotonic-regression (CIR, see \code{\link{cirPAVA}}), this algorithm does not use the dose (x) values at all. For a discussion why CIR is preferred over "plain-vanilla" PAVA, see Oron and Flournoy (2017).
  
 #  
-##' @author C.R. Raubertas, Assaf P. Oron \code{<aoron.at.idmod.org>}
+##' @author C.R. Raubertas, Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 #' @references Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research, In Press (author's public version available on arxiv.org).
 
 
@@ -62,7 +62,7 @@ if (dec) dr$y = -dr$y
 lvlsets <- (1:m)
  
 repeat {
-      viol <- (as.vector(diff(dr$y)) < 0)  # Find adjacent violators
+      viol <- (as.vector(diff(round(dr$y,8))) < 0)  # Find adjacent violators
       if (!(any(viol))) break
  
       i <- min( (1:(m-1))[viol])        # Pool first pair of violators

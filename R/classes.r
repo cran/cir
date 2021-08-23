@@ -37,7 +37,7 @@ return(TRUE)
 #'
 #'
 #' @aliases doseResponse is.doseResponse is.DRtrace
-##' @author Assaf P. Oron \code{<aoron.at.idmod.org>}
+##' @author Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 ##' 
 #' @example inst/examples/classExamples.r
 ##' @seealso \code{\link{cirPAVA}}, \code{\link{plot.doseResponse}},\code{\link{plot.DRtrace}} 
@@ -78,8 +78,6 @@ if (length(ll)==2 && ll[2]==2) { # converting a yes-no table
 	if(noyes) yntab=yntab[,2:1]  # if the table is no-yes rather than yes-no, we reverse it here.
 	y=unlist(apply(yntab,1,function(a,b)rep(b,a),b=1:0))
 	x=rep(xvals,rowSums(yntab))
-	cat(x,'\n')
-	print(y)
 	
  #   y<-c(rep(1,sum(yntab[,1])),rep(0,sum(yntab[,2])))
  #   x<-c(rep(xvals,yntab[,1]),rep(xvals,yntab[,2]))

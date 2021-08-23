@@ -5,39 +5,24 @@
 \title{Calculate inverse (dose-finding) intervals, using local inversion and the Delta method}
 \usage{
 deltaInverse(
-  y,
-  x = NULL,
-  wt = NULL,
+  isotPoint,
   target = NULL,
-  estfun = cirPAVA,
   intfun = morrisCI,
   conf = 0.9,
-  adaptiveShrink = FALSE,
-  starget = target[1],
-  parabola = FALSE,
+  adaptiveCurve = FALSE,
   ...
 )
 }
 \arguments{
-\item{y}{can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object.}
-
-\item{x}{dose levels (if not included in y).}
-
-\item{wt}{weights (if not included in y).}
+\item{isotPoint}{The output of an estimation function such as \code{\link{cirPAVA},\link{doseFind}},  with the option \code{full=TRUE}. Should be at least a list of 3 \code{\link{doseResponse}} objects named \code{input, output, shrinkage}.}
 
 \item{target}{A vector of target response rate(s), for which the interval is needed. If \code{NULL} (default), interval will be returned for the point estimates at design points (e.g., if the forward point estimate at $x_1$ is 0.2, then the first returned interval is for the 20th percentile).}
-
-\item{estfun}{the function to be used for point estimation. Default \code{\link{cirPAVA}}.}
 
 \item{intfun}{the function to be used for initial (forward) interval estimation. Default \code{\link{morrisCI}} (see help on that function for additional options).}
 
 \item{conf}{numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.}
 
-\item{adaptiveShrink}{logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}}.}
-
-\item{starget}{The shrinkage target. Defaults to \code{target[1]}.}
-
-\item{parabola}{logical: should the confidence-interval's interpolation between points with observations follow a parabola (\code{TRUE}) creating broader intervals between observations, or a straight line (\code{FALSE}, default)?}
+\item{adaptiveCurve}{logical, should the CIs be expanded by using a parabolic curve between estimation points rather than straight interpolation (default \code{FALSE})? Recommended when adaptive design was used and \code{target} is not 0.5.}
 
 \item{...}{additional arguments passed on to \code{\link{quickIsotone}}}
 }
@@ -56,7 +41,10 @@ The Delta method in this application boils down to dividing the distance to the 
 dat=doseResponse(y=c(1/7,1/8,1/2,1/4,4/17),wt=c(7,24,20,12,17))
 # The experiment's goal is to find the 30th percentile
 quick1=quickIsotone(dat)
-invDelta=deltaInverse(dat)
+# For inverse confidence intervals "the long way", 
+#    we need a full CIR output object:
+fwd1=cirPAVA(dat, full=TRUE)
+invDelta=deltaInverse(fwd1)
 
 ### Showing the data and the estimates
 par(mar=c(3,3,4,1),mgp=c(2,.5,0),tcl=-0.25)

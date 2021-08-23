@@ -52,5 +52,5 @@ Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Inter
 \code{\link{cirPAVA}}
 }
 \author{
-C.R. Raubertas, Assaf P. Oron \code{<aoron.at.idmod.org>}
+C.R. Raubertas, Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 }

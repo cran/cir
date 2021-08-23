@@ -48,15 +48,15 @@ dat=doseResponse(y=c(1/7,1/8,1/2,1/4,4/17),wt=c(7,24,20,12,17))
 # The experiment's goal is to find the 30th percentile
 slow1=cirPAVA(dat,full=TRUE)
 # Default interval (Morris+Wilson); same as you get by directly calling 'quickIsotone'
-int1=isotInterval(slow1$output)
+int1=isotInterval(slow1)
 # Morris without Wilson; the 'narrower=FALSE' argument is passed on to 'morrisCI'
-int1_0=isotInterval(slow1$output,narrower=FALSE)
+int1_0=isotInterval(slow1,narrower=FALSE)
 # Wilson without Morris
-int2=isotInterval(slow1$output,intfun=wilsonCI)
+int2=isotInterval(slow1,intfun=wilsonCI)
 # Agresti=Coull (the often-used "plus 2")
-int3=isotInterval(slow1$output,intfun=agcouCI)
+int3=isotInterval(slow1,intfun=agcouCI)
 # Jeffrys (Bayesian-inspired) is also available
-int4=isotInterval(slow1$output,intfun=jeffCI)
+int4=isotInterval(slow1,intfun=jeffCI)
 
 ### Showing the data and the intervals
 par(mar=c(3,3,4,1),mgp=c(2,.5,0),tcl=-0.25)
@@ -91,5 +91,5 @@ Morris, M., 1988. Small-sample confidence limits for parameters under inequality
 \code{\link{isotInterval}}
 }
 \author{
-Assaf P. Oron \code{<aoron.at.idmod.org>}
+Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 }

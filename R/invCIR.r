@@ -11,8 +11,12 @@
 #' \item{}{\code{extrapolate=FALSE} (default) translates to \code{rule=1}, which means an \code{NA} will be returned for any target y value lying outside the estimated y range.}
 #' }
 #' Note also that the function is set up to work with a vector of targets.
+#'
+#' If the data were obtained from an adaptive dose-finding design and you seek to estimate a dose other than the experiment's target, note that away from the target the estimates are likely biased (Flournoy and Oron, 2019). Use \code{adaptiveShrink=TRUE} to mitigate the bias. In addition, either provide the true target as \code{starget}, or a vector of values to \code{target}, with the first value being the true target.
+
+
  
-##' @author Assaf P. Oron \code{<aoron.at.idmod.org>}
+##' @author Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 
 #' @param y  can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object. 
 #' @param x dose levels (if not included in y). 
@@ -29,12 +33,11 @@
 
 #' @return under default, returns point estimate(s) of the dose (x) for the provided target rate(s). With \code{full=TRUE}, returns a list with
 #' \itemize{
-#' \item {xout } {  The said point estimate of x}
+#' \item {targest } {  The said point estimate of x}
 #' \item {input  }  {  a \code{doseResponse} object summarizing the input data}
-#' \item {cir  }  {  a \code{doseResponse} object which is the \code{alg} output of the forward-estimation function}
+#' \item {output  }  {  a \code{doseResponse} object with the forward estimate at design points}
+#' \item {shrinkage  }  {  a \code{doseResponse} object which is the \code{alg} output of the forward-estimation function}
 #' }
-
-#' @note If the data were obtained from an adaptive dose-finding design and you seek to estimate a dose other than the experiment's target, note that away from the target the estimates are likely biased (Flournoy and Oron, 2019). Use \code{adaptiveShrink=TRUE} to mitigate the bias. In addition, either provide the true target as \code{starget}, or a vector of values to \code{target}, with the first value being the true target.
 
 #' @seealso \code{\link{oldPAVA}},\code{\link{cirPAVA}}. If you'd like point and interval estimates together, use \code{\link{quickInverse}}.
 
@@ -65,7 +68,7 @@ newy<-pavout$shrinkage$y
 if(min(newy)==max(newy))
 {
 	if(errOnFlat) stop("Cannot dose-find; curve completely flat.\n")
-	if(full) return (list(targest=NA,input=dr,fwd=pavout$shrinkage,fwdDesign=pavout$output))
+	if(full) return (list(targest=NA,input=dr,shrinkage=pavout$shrinkage,output=pavout$output))
 	return(rep(NA,length(target)))
 }
 
@@ -87,7 +90,7 @@ if(any(is.na(tout)) && extrapolate)
 
 if (!full)  return(tout) 
 
-return (list(targest=tout,input=dr,fwd=pavout$shrinkage,fwdDesign=pavout$output))
+return (list(targest=tout,input=dr,shrinkage=pavout$shrinkage,output=pavout$output))
 }
 
 #' Point and Interval Inverse Estimation ("Dose-Finding"), using CIR and IR
@@ -98,7 +101,10 @@ return (list(targest=tout,input=dr,fwd=pavout$shrinkage,fwdDesign=pavout$output)
 #' 
 #' The inverse point estimate is calculated in a straightforward manner from a forward estimate, using \code{\link{doseFind}}. For the inverse interval, the default option (\code{delta=TRUE}) calls \code{\link{deltaInverse}} for a "local" (Delta) inversion of the forward intervals. 
 
-#' If \code{delta=FALSE}, a second call to \code{\link{quickIsotone}} genderates a high-resolution grid outlining the forward intervals. Then the algorithm "draws a horizontal line" at \code{y=target} to find the right and left bounds on this grid. Note that the right (upper) dose-finding confidence bound is found on the lower forward confidence bound, and vice versa. 
+#' If \code{delta=FALSE}, a second call to \code{\link{quickIsotone}} generates a high-resolution grid outlining the forward intervals. Then the algorithm "draws a horizontal line" at \code{y=target} to find the right and left bounds on this grid. Note that the right (upper) dose-finding confidence bound is found on the lower forward confidence bound, and vice versa. This approach is not recommended, tending to produce CIs that are too wide.
+#'
+#' If the data were obtained from an adaptive dose-finding design and you seek to estimate a dose other than the experiment's target, note that away from the target the estimates are likely biased (Flournoy and Oron, 2019). Use \code{adaptiveShrink=TRUE} to mitigate the bias. In addition, either provide the true target as \code{starget}, or a vector of values to \code{target}, with the first value being the true target.
+
 
 #' @param y  can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object. 
 #' @param x dose levels (if not included in y). 
@@ -112,10 +118,8 @@ return (list(targest=tout,input=dr,fwd=pavout$shrinkage,fwdDesign=pavout$output)
 #' @param extrapolate logical: should extrapolation beyond the range of estimated y values be allowed? Default \code{FALSE}. Note this affects only the point estimate; interval boundaries are not extrapolated.
 #' @param adaptiveShrink logical, should the y-values be pre-shrunk towards an experiment's target? Recommended when the data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}} and the Note below.
 #' @param starget The shrinkage target. Defaults to \code{target[1]}.
-#' @param parabola logical: should the confidence-interval's interpolation between points with observations follow a parabola (\code{TRUE}) creating broader intervals between observations, or a straight line (\code{FALSE}, default)?
+#' @param adaptiveCurve logical, should the CIs be expanded by using a parabolic curve between estimation points rather than straight interpolation (default \code{FALSE})? Recommended when adaptive design was used and \code{target} is not 0.5.
 #' @param ...	Other arguments passed on to \code{\link{doseFind}} and \code{\link{quickIsotone}}, and onwards from there.
-
-#' @note If the data were obtained from an adaptive dose-finding design and you seek to estimate a dose other than the experiment's target, note that away from the target the estimates are likely biased (Flournoy and Oron, 2019). Use \code{adaptiveShrink=TRUE} to mitigate the bias. In addition, either provide the true target as \code{starget}, or a vector of values to \code{target}, with the first value being the true target.
 
 #' @return A data frame with 4 elements:
 #' \itemize{
@@ -131,8 +135,9 @@ return (list(targest=tout,input=dr,fwd=pavout$shrinkage,fwdDesign=pavout$output)
 #' @example inst/examples/invExamples.r
 #' @export
 
-quickInverse<-function(y,x=NULL,wt=NULL,target,estfun=cirPAVA, intfun = morrisCI,delta=TRUE,conf = 0.9,
-                        resolution=100,extrapolate=FALSE,adaptiveShrink=FALSE,starget=target[1],parabola=FALSE,...)
+quickInverse<-function(y,x=NULL,wt=NULL,target,estfun=cirPAVA, intfun = morrisCI,
+	delta=TRUE,conf = 0.9,resolution=100, extrapolate=FALSE,
+	adaptiveShrink=FALSE,starget=target[1], adaptiveCurve = FALSE,...)
 {
 
 #### Point estimate first
@@ -143,20 +148,22 @@ m=length(dr$x)
 ## adaptiveShrink set to FALSE to avoid double-shrinking
 pestimate=doseFind(y=dr,estfun=estfun,target=target,full=TRUE,extrapolate=extrapolate,adaptiveShrink=FALSE,...)
 dout=data.frame(target=target,point=pestimate$targest,low=-Inf,high=Inf)
-if(all(is.na(pestimate$targest)))
-foundPts=pestimate$targest[!is.na(pestimate$targest)]
 
-dout=data.frame(target=target,point=pestimate$targest,low=-Inf,high=Inf)
+# All point estimates are NA -> exit here
+if(all(is.na(pestimate$targest))) {
+	names(dout)[3:4]=paste(c("lower","upper"),round(100*conf),"conf",sep="")
+	return(dout)
+}
 
-if(delta) { ## new default, delta-method ("local") intervals
-	dout[,3:4]=deltaInverse(y=dr,target=target,estfun=estfun,intfun=intfun,conf=conf,parabola=parabola,adaptiveShrink=FALSE,...)
+if(delta) { ## Default, delta-method ("local") intervals
+	dout[,3:4]=deltaInverse(pestimate,target=target,intfun=intfun,conf=conf,adaptiveCurve = adaptiveCurve,...)
 } else {
-#### CI, using "global" interpolation; generally too conservative
+#### CI, using "global" interpolation; generally too conservative and not recommended
 #	if(adaptiveShrink) dr=DRshrink(y=dr,target=starget,...)
 
 	## Calculate forward CIs at high-rez grid
 	higrid=seq(dr$x[1],dr$x[m],length.out=1+resolution*(m-1))
-	fwdCIgrid=quickIsotone(dr,outx=higrid,conf=conf,intfun=intfun,parabola=parabola,...)
+	fwdCIgrid=quickIsotone(dr,outx=higrid,conf=conf,intfun=intfun,...)
 	fwdCIdesign=fwdCIgrid[match(dr$x,fwdCIgrid$x),]
 
 	### CI by finding 'right points' on grid
@@ -172,7 +179,6 @@ if(delta) { ## new default, delta-method ("local") intervals
 		} 
 	}
 }
-
 names(dout)[3:4]=paste(c("lower","upper"),round(100*conf),"conf",sep="")
 return(dout)
 }

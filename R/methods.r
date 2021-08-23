@@ -1,4 +1,4 @@
-#' PLotting Methods for DRtrace, doseResponse Objects
+#' Plotting Methods for DRtrace, doseResponse Objects
 #'
 #'
 #' Plotting methods for \code{\link{doseResponse}} and \code{\link{DRtrace}} classes.
@@ -20,7 +20,7 @@
 #' @param refsize 	(doseResponse only) a reference size by which the plotting sizes will be divided. Larger values make the symbols smaller. Default is \code{mean(dr$weight)}.
 #' @param ...	Other arguments passed on to \code{\link{plot}}. 
 
-##' @author Assaf P. Oron \code{<aoron.at.idmod.org>}	  
+##' @author Assaf P. Oron \code{<assaf.oron.at.gmail.com>}	  
 #' @example inst/examples/classExamples.r
 #' @export
 #' @import graphics
@@ -45,6 +45,7 @@ axis(2,at=sort(unique(x$x)))
 plot.doseResponse<-function(x,xlab="Dose",ylab="Response",pch='X',varsize=TRUE,refsize=1/mean(x$weight),connect=FALSE,...) {
 cexy=refsize
 if(varsize) cexy=sqrt(x$weight*refsize)
-plot(y~x,data=x,pch=pch,xlab=xlab,ylab=ylab,cex=cexy,xaxt='n',type=ifelse(connect,'b','p'),...)
-axis(1,at=x$x)
+plot(y~x,data=x,pch=pch,xlab=xlab,ylab=ylab,cex=cexy,
+	type=ifelse(connect,'b','p'),...)
+#axis(1,at=x$x,cex.axis=cex.axis)
 }

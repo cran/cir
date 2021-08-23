@@ -6,23 +6,20 @@
 \usage{
 isotInterval(
   isotPoint,
-  outx = isotPoint$x,
+  outx = isotPoint$output$x,
   conf = 0.9,
   intfun = morrisCI,
-  parabola = FALSE,
   ...
 )
 }
 \arguments{
-\item{isotPoint}{a \code{\link{doseResponse}} object with the x values and isotonic point estimates at design points.}
+\item{isotPoint}{The output of an estimation function such as \code{\link{cirPAVA}}  with the option \code{full=TRUE}. Should be a list of 3 \code{\link{doseResponse}} objects named \code{input, output, shrinkage}.}
 
 \item{outx}{vector of x values for which estimates will be made. If \code{NULL} (default), this will be set to the set of unique values in isotPoint$x argument (or equivalently in y$x).}
 
 \item{conf}{numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.}
 
 \item{intfun}{the function to be used for interval estimation. Default \code{\link{morrisCI}} (see help on that function for additional options).}
-
-\item{parabola}{logical: should the confidence-interval's interpolation between points with observations follow a parabola (\code{TRUE}) creating broader intervals between observations, or a straight line (\code{FALSE}, default)?}
 
 \item{...}{additional arguments passed on to \code{intfun}}
 }
@@ -34,6 +31,8 @@ For confidence intervals at design points ($x$ values with obesrvations), this f
 }
 \note{
 All provided algorithm and formulae are for Binomial data only. For other data, write your own \code{intfun}, returning a two-column matrix. The interval estimation method is presented and discussed by Oron and Flournoy (2017).
+
+Interval coverage for extreme percentiles with adaptive designs may be lacking: use \code{adaptiveCurve=TRUE} whenever the \code{target} is not 0.5. However, targeting  the the 5th or 95th percentile will likely produce intervals with 10-15% under-coverage by with that option.
 }
 \examples{
 # Interesting run (#664) from a simulated up-and-down ensemble:
@@ -42,15 +41,15 @@ dat=doseResponse(y=c(1/7,1/8,1/2,1/4,4/17),wt=c(7,24,20,12,17))
 # The experiment's goal is to find the 30th percentile
 slow1=cirPAVA(dat,full=TRUE)
 # Default interval (Morris+Wilson); same as you get by directly calling 'quickIsotone'
-int1=isotInterval(slow1$output)
+int1=isotInterval(slow1)
 # Morris without Wilson; the 'narrower=FALSE' argument is passed on to 'morrisCI'
-int1_0=isotInterval(slow1$output,narrower=FALSE)
+int1_0=isotInterval(slow1,narrower=FALSE)
 # Wilson without Morris
-int2=isotInterval(slow1$output,intfun=wilsonCI)
+int2=isotInterval(slow1,intfun=wilsonCI)
 # Agresti=Coull (the often-used "plus 2")
-int3=isotInterval(slow1$output,intfun=agcouCI)
+int3=isotInterval(slow1,intfun=agcouCI)
 # Jeffrys (Bayesian-inspired) is also available
-int4=isotInterval(slow1$output,intfun=jeffCI)
+int4=isotInterval(slow1,intfun=jeffCI)
 
 ### Showing the data and the intervals
 par(mar=c(3,3,4,1),mgp=c(2,.5,0),tcl=-0.25)
@@ -79,11 +78,11 @@ legend('topleft',pch=c(NA,'X',NA,NA,NA),lty=c(1,NA,2,2,2),col=c(4,1,2,1,3),lwd=c
 
 }
 \references{
-Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research, In Press (author's public version available on arxiv.org).
+Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research 3, 258-267.
 }
 \seealso{
 \code{\link{quickIsotone}},\code{\link{quickInverse}},\code{\link{morrisCI}},
 }
 \author{
-Assaf P. Oron \code{<aoron.at.idmod.org>}
+Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 }

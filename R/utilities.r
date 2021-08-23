@@ -68,7 +68,7 @@ parapolate<-function(x,y,xout,upward,full=FALSE)
 if(any(diff(x)<=0)) stop("x must be monotone strictly increasing.\n")
 m=length(x)
 if(m<2) stop ("Need at least 2 points.\n")
-if(min(xout)<x[1] || max(xout)>x[m]) stop("This function does not extrapolate.\n")
+#if(min(xout)<x[1] || max(xout)>x[m]) stop("This function does not extrapolate.\n")
 if(length(y)!=m) stop("mismatched x,y lengths.\n")
 
 yout=y[match(xout,x)]
@@ -93,8 +93,11 @@ b=ifelse(oneflat,-2*x1*a,-2*x2*a)
 cee=y1-a*x1^2-b*x1  # per parabola definitions :)
 
 intchoose=findInterval(xout,x)
+intchoose[intchoose==0]=1
 candy=a[intchoose]*xout^2+b[intchoose]*xout+cee[intchoose]
 yout[!(xout %in% x)]=candy[!(xout %in% x)]
+# Forcing NA outside boundaries
+yout[ xout<x[1] | xout>x[m] ] = NA
 if(!full) return(yout)
 return(list(a=a,b=b,c=cee,outdat=data.frame(x=xout,y=yout)))
 }
@@ -112,6 +115,7 @@ return(list(a=a,b=b,c=cee,outdat=data.frame(x=xout,y=yout)))
 #' @param y numeric: input y values, must be monotone (can be non-strict) and in line with the direction specified by \code{decreasing}
 #' @param outx numeric or integer: x values at which slopes are desired (default: same as input values)
 #' @param allowZero logical: should zero be allowed in the output? Default \code{FALSE}
+#' @param tol tolerance level: when \code{allowZero=FALSE}, slope below that value is considered zero. Default 1e-4. Might need to change if you use unusual units for x or y.
 #' @param full logical: should a more detailed output be provided? Default \code{FALSE} (see details under 'Value').
 #' @param decreasing logical: is input supposed to be monotone decreasing rather than increasing? Default \code{FALSE}
 
@@ -121,17 +125,17 @@ return(list(a=a,b=b,c=cee,outdat=data.frame(x=xout,y=yout)))
 #' @seealso \code{\link{deltaInverse}}, which uses this function.
 #' @export
 
-slope<-function(x,y,outx=x,allowZero=FALSE,full=FALSE,decreasing=FALSE)
+slope<-function(x,y,outx=x,allowZero=FALSE,tol=1e-4,full=FALSE,decreasing=FALSE)
 {
 ### Validation (might be mostly redundant if using doseResponse as input)
-
+y=round(y,8)  # underflow error prevention
 if (any(outx>max(x) | outx<min(x))) stop("No extrapolation allowed in 'slopes'.\n")
 m=length(x)
 if(length(y)!=m) stop("Mismatched lengths in 'slopes'.\n")
 if(decreasing) y=-y
 xdiffs=diff(x)
 ydiffs=diff(y)
-if (any(xdiffs<=0 | ydiffs<0)) stop("Monotonicity violation in 'slopes'.\n")
+if (any(xdiffs<=0 | ydiffs<0)) stop("Monotonicity violation in slope().\n")
 if (y[1]==y[m] && !allowZero)  return(rep(NA,length(outx))) # degenerate flat case; no solution
 slopes=ydiffs/xdiffs
 sslopes=c(slopes[1],slopes,slopes[m-1])  ### so that the edges get only the inward-side slope
@@ -147,13 +151,13 @@ if (length(design)>0) {
 candidate0=candidate
 
 ## tougher nut: zero slope
-if(!allowZero && any(candidate==0))
+if(!allowZero && any(candidate<tol))
 {
 	xstep=mean(xdiffs)
-	for (a in which(candidate==0))
+	for (a in which(candidate<tol))
 	{	
 		b=0
-		while(candidate[a]==0)
+		while(candidate[a]<tol)
 		{
 			b=b+1
 			xends=c(max(x[1],outx[a]-b*xstep),min(x[m],outx[a]+b*xstep))
@@ -182,7 +186,7 @@ return(list(rawslopes=slopes,initial=candidate0,final=candidate))
 #' on the shrunk data.
 
 #' @references Flournoy N and Oron AP, 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
-#' @author Assaf P. Oron \code{<aoron.at.idmod.org>}
+#' @author Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 #' 
 #' @param y  can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object. 
 #' @param x dose levels (if not included in y). 
@@ -197,7 +201,7 @@ DRshrink<-function(y,x=NULL,wt0=NULL,target,swt=1,nmin=2,...)
 {
 if(length(target)>1) stop('Shrinkage target must be a single constant.\n')
 dr=doseResponse(y=y,x=x,wt=wt0,...)
-dr$y=ifelse(dr$weight<nmin,dr$y,(dr$y*dr$weight+target*swt)/(dr$weight+swt))
+dr$y=ifelse(dr$weight<nmin,dr$y,round((dr$y*dr$weight+target*swt)/(dr$weight+swt),8))
 #print(dr)
 return(dr)
 }

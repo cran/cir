@@ -100,5 +100,5 @@ Flournoy, N. and Oron, A.P., 2020. Bias Induced by Adaptive Dose-Finding Designs
 \code{\link{oldPAVA}},\code{\link{quickIsotone}}; \code{\link{DRshrink}} for explanation about \code{adaptiveShrink}.
 }
 \author{
-Assaf P. Oron \code{<aoron.at.idmod.org>}
+Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 }

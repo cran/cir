@@ -13,7 +13,7 @@
 #' @references Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research 9, 258-267. (author's public version available on arxiv.org).
 #' @references Flournoy, N. and Oron, A.P., 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
 
-##' @author Assaf P. Oron \code{<aoron.at.idmod.org>}
+##' @author Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 #' @example inst/examples/cirExamples.r
 
 
@@ -57,26 +57,24 @@ if (!full) return (dr$y)
 else return(list(output=dr,input=dr,shrinkage=dr))
 }
 
-
 dr0=dr ## clean copy of input data
 ### Decreasing monotone case: simple fix
 if (dec) dr$y = -dr$y
 
-
 #### Core algorithm
-
 repeat {
 
 # Find adjacent violators
 # Definition of violators comes in 1 of 3 'flavors', see help
-	viol <- (as.vector(diff(dr$y)) < 0)
+	viol <- (as.vector(diff(round(dr$y,8))) < 0)
 	if(interiorStrict) 
 	{
-		addviol <- (as.vector(diff(dr$y)) == 0)
+		addviol <- (as.vector(diff(round(dr$y,8))) == 0)
 		addviol[addviol & (dr$y[-m] %in% ybounds) & (dr$y[-1] %in% ybounds)]=FALSE
 		viol<-(viol | addviol)
 	}
-	if(strict) viol <- (as.vector(diff(dr$y)) <= 0)
+	if(strict) viol <- (as.vector(diff(round(dr$y,8))) <= 0)
+
 
     if (!(any(viol))) break
     i <- min( (1:(m-1))[viol]) # Pool first pair of violators
@@ -130,7 +128,7 @@ if (!full) {
 #' An analogous function for dose-finding (inverse estimation) is \code{\link{quickInverse}}.
 #'
 #'
-##' @author Assaf P. Oron \code{<aoron.at.idmod.org>}
+##' @author Assaf P. Oron \code{<assaf.oron.at.gmail.com>}
 #' @example inst/examples/cirExamples.r
 #' @export
 
@@ -145,6 +143,10 @@ if (!full) {
 #' @note You can obtain interpolated point estimates for x values between the observed data by specifying them via \code{outx}. However, for CIR, do NOT commit the error of generating estimates at observations, then interpolating using \code{\link{approx}}. If you need to retain a set of estimates for plotting the entire fitted curve, or for future interpolation at unknown points, call \code{\link{cirPAVA}} directly with \code{full=TRUE}, then use the returned \code{shrinkage} data frame for plotting and interpolation. See example code below.
 #' @import stats
 
+#' @references Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research 9, 258-267. (author's public version available on arxiv.org).
+#' @references Flournoy, N. and Oron, A.P., 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
+
+
 #' @param y  can be either of the following: y values (response rates), a 2-column matrix with positive/negative response counts by dose, a \code{\link{DRtrace}} object or a \code{\link{doseResponse}} object. 
 #' @param x dose levels (if not included in y). Note that the PAV algorithm doesn't really use them. 
 #' @param wt weights (if not included in y).
@@ -154,10 +156,12 @@ if (!full) {
 #' @param intfun the function to be used for interval estimation. Default \code{\link{wilsonCI}} (see help on that function for additional options).
 #' @param conf numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.
 #' @param adaptiveShrink logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. If \code{TRUE}, then must also provide a \code{target} argument that will be passed via \code{...}.
-#' @param parabola logical, should interpolated interval boundaries between observations be parabolically curved outwards to allow for more uncertainty? Default \code{FALSE}
 #' @param ...	arguments passed on to other functions (constructor, point estimate and interval estimate).
 
-quickIsotone<-function (y,x=NULL,wt=NULL,outx=NULL,dec=FALSE,estfun=cirPAVA,intfun=morrisCI,conf=0.9,adaptiveShrink=FALSE,parabola=FALSE,...) 
+#' @note If the data were obtained from an adaptive dose-finding design then away from the design's target the estimates are likely biased (Flournoy and Oron, 2020). Use \code{adaptiveShrink=TRUE} to mitigate the bias. 
+
+
+quickIsotone<-function (y,x=NULL,wt=NULL,outx=NULL,dec=FALSE,estfun=cirPAVA,intfun=morrisCI,conf=0.9,adaptiveShrink=FALSE,...) 
 {
 dr=doseResponse(y=y,x=x,wt=wt,...)
 # Adaptive-design shrinkage fix
@@ -169,7 +173,7 @@ pestimate=estfun(y=dr,dec=dec,full=TRUE,...)
 #a	pestimate=cirPAVA(y=dr,dec=dec,full=TRUE,...)
 #} else pestimate=oldPAVA(y=dr,dec=dec,full=TRUE,...)
 
-cestimate=isotInterval(pestimate$output,conf=conf,intfun=intfun,outx=outx,parabola=parabola,...)
+cestimate=isotInterval(pestimate,conf=conf,intfun=intfun,outx=outx,...)
 
 if(all(outx %in% dr$x)) 
 {
