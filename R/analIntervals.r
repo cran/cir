@@ -56,6 +56,8 @@ return(data.frame(ciLow=lcl,ciHigh=ucl))
 #'
 #' The Delta method in this application boils down to dividing the distance to the forward (vertical) bounds, by the slope, to get the left/right interval width. Slope estimates are performed by \code{\link{slope}}. An alternative method (dubbed "global") is hard-coded into \code{\link{quickInverse}}. 
 
+
+
 #' @return two-column matrix with the left and right bounds, respectively
 
 #' @param isotPoint The output of an estimation function such as \code{\link{cirPAVA},\link{doseFind}},  with the option \code{full=TRUE}. Should be at least a list of 3 \code{\link{doseResponse}} objects named \code{input, output, shrinkage}.
@@ -63,6 +65,7 @@ return(data.frame(ciLow=lcl,ciHigh=ucl))
 #' @param intfun the function to be used for initial (forward) interval estimation. Default \code{\link{morrisCI}} (see help on that function for additional options).
 #' @param conf numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.
 #' @param adaptiveCurve logical, should the CIs be expanded by using a parabolic curve between estimation points rather than straight interpolation (default \code{FALSE})? Recommended when adaptive design was used and \code{target} is not 0.5.
+#' @param minslope minimum local slope considered positive, passed on to \code{\link{slope}}. Needed to avoid unrealistically broad intervals. Default 0.01.
 #' @param ... additional arguments passed on to \code{\link{quickIsotone}}
 
 #' @seealso \code{\link{quickIsotone}},\code{\link{quickInverse}},\code{\link{isotInterval}},
@@ -73,7 +76,7 @@ return(data.frame(ciLow=lcl,ciHigh=ucl))
 #' @export
 
 deltaInverse<-function(isotPoint,target=NULL,intfun = morrisCI, conf = 0.9,
-	adaptiveCurve = FALSE,...)
+	adaptiveCurve = FALSE, minslope = 0.01,...)
 {
 k=length(target)
 isotPoint$shrinkage$y=round(isotPoint$shrinkage$y,8) ### avoid rounding errors from PAVA
@@ -85,7 +88,7 @@ if(sum(n>0)<2 || is.null(yval0) || length(yval0)<=1 || var(yvals)<.Machine$doubl
 
 ### Forward interval
 cestimate=isotInterval(isotPoint,conf=conf,intfun=intfun,outx=isotPoint$shrinkage$x,...)
-fslopes=slope(isotPoint$shrinkage$x,isotPoint$shrinkage$y)
+fslopes=slope(isotPoint$shrinkage$x,isotPoint$shrinkage$y, tol=minslope)
 
 # inverse widths raw
 rwidths=(isotPoint$shrinkage$y-cestimate$ciLow)/fslopes

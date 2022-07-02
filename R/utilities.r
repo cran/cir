@@ -1,5 +1,5 @@
 #### Some standard CI calculation functions
-#' Standard unordered-Binomial confidence interval utilitlies.
+#' Standard unordered-Binomial confidence interval utilities.
 #' 
 #' Standard small-sample Binomial confidence interval utilities, using the methods of Wilson, Agresti-Coull and Jeffrys.
 #' 
@@ -115,7 +115,7 @@ return(list(a=a,b=b,c=cee,outdat=data.frame(x=xout,y=yout)))
 #' @param y numeric: input y values, must be monotone (can be non-strict) and in line with the direction specified by \code{decreasing}
 #' @param outx numeric or integer: x values at which slopes are desired (default: same as input values)
 #' @param allowZero logical: should zero be allowed in the output? Default \code{FALSE}
-#' @param tol tolerance level: when \code{allowZero=FALSE}, slope below that value is considered zero. Default 1e-4. Might need to change if you use unusual units for x or y.
+#' @param tol tolerance level: when \code{allowZero=FALSE}, slope below that value is considered zero. Default 1e-2. Might need to change if you use unusual units for x or y.
 #' @param full logical: should a more detailed output be provided? Default \code{FALSE} (see details under 'Value').
 #' @param decreasing logical: is input supposed to be monotone decreasing rather than increasing? Default \code{FALSE}
 
@@ -125,7 +125,7 @@ return(list(a=a,b=b,c=cee,outdat=data.frame(x=xout,y=yout)))
 #' @seealso \code{\link{deltaInverse}}, which uses this function.
 #' @export
 
-slope<-function(x,y,outx=x,allowZero=FALSE,tol=1e-4,full=FALSE,decreasing=FALSE)
+slope<-function(x,y,outx=x,allowZero=FALSE,tol=1e-2,full=FALSE,decreasing=FALSE)
 {
 ### Validation (might be mostly redundant if using doseResponse as input)
 y=round(y,8)  # underflow error prevention
@@ -193,14 +193,14 @@ return(list(rawslopes=slopes,initial=candidate0,final=candidate))
 #' @param wt0 weights (if not included in y).
 #' @param target the balance point (between 0 and 1) around which the design concentrates allocations.
 #' @param swt the weight of the shrinkage. Default 1 (a single observation)
-#' @param nmin the minimum n at each dose, for the shrinkage to be applied. Default 1 (all doses with any observation).
+#' @param nmin the minimum n at each dose, for the shrinkage to be applied. Default 2.
 #' @param ... parameters passed on to \code{doseResponse()} 
 #' 
 #' @export
-DRshrink<-function(y,x=NULL,wt0=NULL,target,swt=1,nmin=2,...) 
+DRshrink<-function(y, x=NULL, wt0=NULL, target, swt=1, nmin=2, ...) 
 {
 if(length(target)>1) stop('Shrinkage target must be a single constant.\n')
-dr=doseResponse(y=y,x=x,wt=wt0,...)
+dr = doseResponse(y=y,x=x,wt=wt0,...)
 dr$y=ifelse(dr$weight<nmin,dr$y,round((dr$y*dr$weight+target*swt)/(dr$weight+swt),8))
 #print(dr)
 return(dr)

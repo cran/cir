@@ -4,7 +4,7 @@
 \alias{wilsonCI}
 \alias{agcouCI}
 \alias{jeffCI}
-\title{Standard unordered-Binomial confidence interval utilitlies.}
+\title{Standard unordered-Binomial confidence interval utilities.}
 \usage{
 wilsonCI(phat, n, conf = 0.9, ...)
 

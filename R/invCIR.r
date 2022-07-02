@@ -135,9 +135,9 @@ return (list(targest=tout,input=dr,shrinkage=pavout$shrinkage,output=pavout$outp
 #' @example inst/examples/invExamples.r
 #' @export
 
-quickInverse<-function(y,x=NULL,wt=NULL,target,estfun=cirPAVA, intfun = morrisCI,
-	delta=TRUE,conf = 0.9,resolution=100, extrapolate=FALSE,
-	adaptiveShrink=FALSE,starget=target[1], adaptiveCurve = FALSE,...)
+quickInverse<-function(y, x=NULL, wt=NULL, target, estfun=cirPAVA, intfun = morrisCI,
+	delta=TRUE,conf = 0.9, resolution=100, extrapolate=FALSE,
+	adaptiveShrink=FALSE, starget=target[1], adaptiveCurve = FALSE, ...)
 {
 
 #### Point estimate first

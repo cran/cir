@@ -9,7 +9,7 @@ slope(
   y,
   outx = x,
   allowZero = FALSE,
-  tol = 1e-04,
+  tol = 0.01,
   full = FALSE,
   decreasing = FALSE
 )
@@ -23,7 +23,7 @@ slope(
 
 \item{allowZero}{logical: should zero be allowed in the output? Default \code{FALSE}}
 
-\item{tol}{tolerance level: when \code{allowZero=FALSE}, slope below that value is considered zero. Default 1e-4. Might need to change if you use unusual units for x or y.}
+\item{tol}{tolerance level: when \code{allowZero=FALSE}, slope below that value is considered zero. Default 1e-2. Might need to change if you use unusual units for x or y.}
 
 \item{full}{logical: should a more detailed output be provided? Default \code{FALSE} (see details under 'Value').}
 

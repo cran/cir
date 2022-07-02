@@ -11,6 +11,8 @@
   ylab = "Dose",
   shape = "circle",
   connect = TRUE,
+  mcol = 1,
+  dosevals = NULL,
   ...
 )
 
@@ -22,6 +24,7 @@
   varsize = TRUE,
   refsize = 1/mean(x$weight),
   connect = FALSE,
+  mcol = 1,
   ...
 )
 }
@@ -34,13 +37,17 @@
 
 \item{connect}{logical: whether to connect the symbols (generic plotting type 'b'). Default \code{TRUE} for \code{\link{DRtrace}} and \code{FALSE} for \code{\link{doseResponse}}}
 
+\item{mcol}{The color of the main plotting symbols and connecting lines. Default 1 (the current palette's first color). Note: if you change the color and inadvertently use \code{col} instead, there will be an error message.}
+
+\item{dosevals}{(\code{DRtrace} only) Dose values to be plotted along the y-axis. If \code{NULL} (default), those will be the doses in the dataset (i.e.,\code{sort(unique(x$x))}).}
+
 \item{...}{Other arguments passed on to \code{\link{plot}}.}
 
 \item{pch}{the plotting character (doseResponse only), the default being 'X' marks}
 
-\item{varsize}{(doseResponse only) logical, should symbol size vary by sample size? Default \code{TRUE}}
+\item{varsize}{(\code{doseResponse} only) logical, should symbol size vary by sample size? Default \code{TRUE}}
 
-\item{refsize}{(doseResponse only) a reference size by which the plotting sizes will be divided. Larger values make the symbols smaller. Default is \code{mean(dr$weight)}.}
+\item{refsize}{(\code{doseResponse} only) a reference size by which the plotting sizes will be divided. Larger values make the symbols smaller. Default is \code{mean(dr$weight)}.}
 }
 \description{
 Plotting methods for \code{\link{doseResponse}} and \code{\link{DRtrace}} classes.

@@ -17,7 +17,7 @@ DRshrink(y, x = NULL, wt0 = NULL, target, swt = 1, nmin = 2, ...)
 
 \item{swt}{the weight of the shrinkage. Default 1 (a single observation)}
 
-\item{nmin}{the minimum n at each dose, for the shrinkage to be applied. Default 1 (all doses with any observation).}
+\item{nmin}{the minimum n at each dose, for the shrinkage to be applied. Default 2.}
 
 \item{...}{parameters passed on to \code{doseResponse()}}
 }
