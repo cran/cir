@@ -32,7 +32,7 @@ For confidence intervals at design points ($x$ values with obesrvations), this f
 \note{
 All provided algorithm and formulae are for Binomial data only. For other data, write your own \code{intfun}, returning a two-column matrix. The interval estimation method is presented and discussed by Oron and Flournoy (2017).
 
-Interval coverage for extreme percentiles with adaptive designs may be lacking: use \code{adaptiveCurve=TRUE} whenever the \code{target} is not 0.5. However, targeting  the the 5th or 95th percentile will likely produce intervals with 10-15% under-coverage by with that option.
+Interval coverage for extreme percentiles with adaptive designs may be lacking: use \code{adaptiveCurve=TRUE} whenever the \code{target} is not 0.5. However, targeting  the the 5th or 95th percentile will likely produce intervals with 10-15\% under-coverage by with that option.
 }
 \examples{
 # Interesting run (#664) from a simulated up-and-down ensemble:

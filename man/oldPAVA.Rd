@@ -40,7 +40,7 @@ Nonparametric forward point estimation of a monotone response (y), using the sta
 }
 \details{
 Compute the isotonic regression of a numeric vector 'y', with
- weights 'wt', with respect to simple order. The core algorithm is still the one
+weights 'wt', with respect to simple order. The core algorithm is still the one
 coded by R.F. Raubertas, dated 02 Sep 1994. However, the input and output modules have been
 modified to allow more flexible formats in either direction.
 note that unlike centered-isotonic-regression (CIR, see \code{\link{cirPAVA}}), this algorithm does not use the dose (x) values at all. For a discussion why CIR is preferred over "plain-vanilla" PAVA, see Oron and Flournoy (2017).

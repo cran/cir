@@ -54,11 +54,11 @@ under default, returns point estimate(s) of the dose (x) for the provided target
 }
 }
 \description{
-Inverse ("dose-finding") point estimation of a dose (x) for a specified target y value (e.g., a response rate), 
- using a user-specified forward-estimation algorithm (default is CIR).
+Inverse ("dose-finding") point estimation of a dose (x) for a specified target y value (e.g., a response rate),
+using a user-specified forward-estimation algorithm (default is CIR).
 }
 \details{
-The function works by calling \code{estfun} for forward estimation of the x-y relationship, then using \code{\link{approx}} with the x and y roles reversed for inverse estimation. The \code{extrapolate} option sets the \code{rule} argumet for this second call: 
+The function works by calling \code{estfun} for forward estimation of the x-y relationship, then using \code{\link{approx}} with the x and y roles reversed for inverse estimation. The \code{extrapolate} option sets the \code{rule} argumet for this second call:
 \itemize{
 \item {}{\code{extrapolate=TRUE} translates to \code{rule=2}, which actually means that the x value on the edge of the estimated y range will be assigned.}
 \item{}{\code{extrapolate=FALSE} (default) translates to \code{rule=1}, which means an \code{NA} will be returned for any target y value lying outside the estimated y range.}

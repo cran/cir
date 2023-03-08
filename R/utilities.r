@@ -125,7 +125,7 @@ return(list(a=a,b=b,c=cee,outdat=data.frame(x=xout,y=yout)))
 #' @seealso \code{\link{deltaInverse}}, which uses this function.
 #' @export
 
-slope<-function(x,y,outx=x,allowZero=FALSE,tol=1e-2,full=FALSE,decreasing=FALSE)
+slope<-function(x, y, outx=x, allowZero=FALSE, tol=1e-2, full=FALSE, decreasing=FALSE)
 {
 ### Validation (might be mostly redundant if using doseResponse as input)
 y=round(y,8)  # underflow error prevention

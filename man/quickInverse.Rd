@@ -62,7 +62,7 @@ A data frame with 4 elements:
 Convenience wrapper for point and interval estimation of the "dose" that would generate a \code{target} "response" value, using CIR and IR.
 }
 \details{
-The inverse point estimate is calculated in a straightforward manner from a forward estimate, using \code{\link{doseFind}}. For the inverse interval, the default option (\code{delta=TRUE}) calls \code{\link{deltaInverse}} for a "local" (Delta) inversion of the forward intervals. 
+The inverse point estimate is calculated in a straightforward manner from a forward estimate, using \code{\link{doseFind}}. For the inverse interval, the default option (\code{delta=TRUE}) calls \code{\link{deltaInverse}} for a "local" (Delta) inversion of the forward intervals.
 If \code{delta=FALSE}, a second call to \code{\link{quickIsotone}} generates a high-resolution grid outlining the forward intervals. Then the algorithm "draws a horizontal line" at \code{y=target} to find the right and left bounds on this grid. Note that the right (upper) dose-finding confidence bound is found on the lower forward confidence bound, and vice versa. This approach is not recommended, tending to produce CIs that are too wide.
 
 If the data were obtained from an adaptive dose-finding design and you seek to estimate a dose other than the experiment's target, note that away from the target the estimates are likely biased (Flournoy and Oron, 2019). Use \code{adaptiveShrink=TRUE} to mitigate the bias. In addition, either provide the true target as \code{starget}, or a vector of values to \code{target}, with the first value being the true target.
@@ -72,14 +72,14 @@ If the data were obtained from an adaptive dose-finding design and you seek to e
 # (x will be auto-generated as dose levels 1:5)
 dat=doseResponse(y=c(1/7,1/8,1/2,1/4,4/17),wt=c(7,24,20,12,17))
 # The experiment's goal is to find the 30th percentile
-inv1=quickInverse(dat,target=0.3)
-# With old PAVA as the forward estimator:
-inv0=quickInverse(dat,target=0.3,estfun=oldPAVA)
+inv1=quickInverse(dat, target=0.3, adaptiveShrink = TRUE)
+# With old PAVA as the forward estimator, and without the adaptive-design bias correction:
+inv0=quickInverse(dat, target=0.3, estfun=oldPAVA)
 
 
 ### Showing the data and the estimates
-par(mar=c(3,3,1,1),mgp=c(2,.5,0),tcl=-0.25)
-plot(dat,ylim=c(0.05,0.55),refsize=4,las=1) # uses plot.doseResponse()
+par(mar=c(3,3,1,1), mgp=c(2,.5,0), tcl=-0.25)
+plot(dat, ylim=c(0.05,0.55), las=1) # uses plot.doseResponse()
 
 # The true response function; true target is where it crosses the y=0.3 line
 lines(seq(1,5,0.1),pweibull(seq(1,5,0.1),shape=1.1615,scale=8.4839),col=4)

@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Assaf Oron" />
+
+<meta name="date" content="2023-03-07" />
+
+<title>Vignette for the cir Package</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Vignette for the <code>cir</code>
+Package</h1>
+<h3 class="subtitle">Using Up-and-Down data from Benhamou et
+al. (2003)</h3>
+<h4 class="author">Assaf Oron</h4>
+<h4 class="date">2023-03-07</h4>
+
+
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>I demonstrate the <code>cir</code> package with data from the
+anesthesiology experiment of Benhamou et al. (2003)<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>. This experiment used
+the Up-and-Down (UD) dose-finding design, and was re-analyzed a few
+years later by Pace and Stylianou (2007).<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> Here I re-analyze the
+dataset again, using state-of-the-art Centered Isotonic Regression
+(CIR),<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>
+the core estimator found in our package.</p>
+<p>Up-and-down data analysis was the original motivation for developing
+CIR and <code>cir</code>. For a general overview of UD designs, see Oron
+et al. 2022.<a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a> However, the package is compatible with any
+binary-outcome data for which a monotone dose-response relationship is
+expected - regardless of design. The <code>cir</code> package includes
+methods for both <strong>“forward”</strong> estimation, i.e., the
+expected response rate conditional on dose, and
+<strong>“inverse”</strong> estimation, a.k.a. dose-finding. Both
+estimation directions have quick, more user-friendly all-in-one
+functions, and more detailed in-depth functions.</p>
+<p>If your interest is mainly in UD data analysis, then I have a
+dedicated UD package called <code>upndown</code> in <em>“advanced
+Beta”</em> stage (as of Spring 2023). It includes wrappers for even
+simpler, single-command plotting and estimation of UD datasets, using
+<code>cir</code> package functions with the defaults already dialed onto
+the UD context. You can download that package using
+<code>remotes::install_github(assaforon/upndown)</code>.</p>
+</div>
+<div id="the-study-in-our-example" class="section level2">
+<h2>The Study in our Example</h2>
+<p>Benhamou et al. (2003) randomized women volunteers in labor into two
+groups, receiving as analgesic either ropivacaine or levobupivacaine, to
+estimate each agent’s median effective dose (ED<span class="math inline">\(_{50}\)</span>) for this condition, and to test
+whether there is significant difference in efficacy by comparing the two
+estimates. The original study used a “traditional” UD dose-averaging
+estimation method, concluding that even though levobupivacaine seemed
+19% more potent, the difference between ED<span class="math inline">\(_{50}\)</span>s was not significant. To derive
+inference about this difference, they apparently used the standard
+errors of dose averages in a <span class="math inline">\(t\)</span>-test
+like manner.</p>
+<p>Pace and Stylianou (2007) re-analyzed the data using isotonic
+regression (IR) and <span class="math inline">\(83\%\)</span> bootstrap
+confidence intervals (CIs); under certain assumptions, examining whether
+these CIs overlap is equivalent to rejecting the Null hypothesis with
+<span class="math inline">\(\alpha = 0.05.\)</span> <a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> They found a larger
+difference: levobupivacaine was 37% more potent according to the IR
+estimates. Furthermore, they diffrence was deemed statistically
+significant because the <span class="math inline">\(83\%\)</span> CIs
+did not overlap.</p>
+<p>Here we revisit this experiment yet again. To reduce some confusion,
+we drop the percent sign from description of doses used <em>(they were
+given as concentrations in percent in the original)</em>.</p>
+</div>
+<div id="experimental-trajectories" class="section level2">
+<h2>Experimental Trajectories</h2>
+<p>We do not have the original data table, nor do the original authors
+have access to it anymore; but we can read the sequence of administered
+doses off of Benhamou et al.’s Figure 1.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># For brevity, we initially use integers to denote the doses. </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>xropi <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">11</span><span class="sc">:</span><span class="dv">9</span>,<span class="dv">10</span><span class="sc">:</span><span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">10</span>,<span class="dv">9</span>,<span class="dv">10</span><span class="sc">:</span><span class="dv">7</span>,<span class="dv">8</span><span class="sc">:</span><span class="dv">11</span>,<span class="dv">10</span><span class="sc">:</span><span class="dv">12</span>,<span class="dv">11</span><span class="sc">:</span><span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">7</span><span class="sc">:</span><span class="dv">10</span>,<span class="dv">9</span>,<span class="dv">8</span>,<span class="dv">9</span>,<span class="dv">8</span><span class="sc">:</span><span class="dv">10</span>,<span class="dv">9</span>,<span class="dv">10</span>,<span class="dv">9</span>,<span class="dv">10</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>xlevo <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">11</span>,<span class="dv">10</span>,<span class="dv">11</span>,<span class="dv">10</span>,<span class="dv">11</span><span class="sc">:</span><span class="dv">9</span>,<span class="dv">10</span><span class="sc">:</span><span class="dv">7</span>,<span class="dv">8</span>,<span class="dv">7</span>,<span class="dv">8</span><span class="sc">:</span><span class="dv">5</span>,<span class="dv">6</span><span class="sc">:</span><span class="dv">8</span>,<span class="dv">7</span>,<span class="dv">8</span><span class="sc">:</span><span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">6</span>,<span class="dv">7</span><span class="sc">:</span><span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">6</span><span class="sc">:</span><span class="dv">12</span>)</span></code></pre></div>
+<p>The study design being <em>“classical”</em> or median-finding UD, the
+responses (<span class="math inline">\(y\)</span>) can be read off
+directly from the doses (<span class="math inline">\(x\)</span>): a
+positive increment indicates no effectiveness (<span class="math inline">\(y=0\)</span>), and vice versa. Symbolically, <span class="math display">\[y = \left( 1-diff(x) \right) / 2.\]</span> We use
+this and the <code>DRtrace()</code> constructor utility, to create
+objects that store doses (converted to their physical units) and
+responses; as we call them here, the experimental “trace” or
+<strong>trajectory.</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(cir)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>bhamou03ropi <span class="ot">=</span> <span class="fu">DRtrace</span>(<span class="at">x=</span>xropi[<span class="sc">-</span><span class="dv">40</span>]<span class="sc">/</span><span class="dv">100</span>, <span class="at">y=</span>(<span class="dv">1</span><span class="sc">-</span><span class="fu">diff</span>(xropi))<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>bhamou03levo <span class="ot">=</span> <span class="fu">DRtrace</span>(<span class="at">x=</span>xlevo[<span class="sc">-</span><span class="dv">40</span>]<span class="sc">/</span><span class="dv">100</span>, <span class="at">y=</span>(<span class="dv">1</span><span class="sc">-</span><span class="fu">diff</span>(xlevo))<span class="sc">/</span><span class="dv">2</span>)</span></code></pre></div>
+<p>In the construction above, we gave up the 40th and last observation
+in each arm, because we only know its dose but not the response. Since
+UD datasets (and more generally, small-sample dose-response datasets)
+are rather compact, as shown above adding the data takes no more than
+2-3 lines of code. But you can also use <code>.csv</code> file input if
+preferred, with two columns headed <code>x</code> and
+<code>y</code>.</p>
+<p><code>DRtrace</code> objects have a native plotting method:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), <span class="at">las=</span><span class="dv">1</span>, <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">1</span>)) <span class="co"># image format parameters</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>doserange <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">12</span>)<span class="sc">/</span><span class="dv">100</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bhamou03ropi, <span class="at">ylim=</span>doserange, <span class="at">ylab=</span><span class="st">&quot;Concentration (%)&quot;</span>, <span class="at">main=</span><span class="st">&#39;Ropivacaine Arm&#39;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&#39;bottomright&#39;</span>,<span class="at">legend=</span><span class="fu">c</span>(<span class="st">&#39;Effective&#39;</span>,<span class="st">&#39;Ineffective&#39;</span>),<span class="at">pch=</span><span class="fu">c</span>(<span class="dv">19</span>,<span class="dv">1</span>),<span class="at">bty=</span><span class="st">&#39;n&#39;</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bhamou03levo, <span class="at">ylim=</span>doserange, <span class="at">ylab=</span><span class="st">&quot;Concentration (%)&quot;</span>, <span class="at">main=</span><span class="st">&#39;Levobupivacaine Arm&#39;</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" width="800" height="400" /></p>
+<p>The “traditional” estimates in the original articles, just used some
+type of average of the doses administered. This is based on the premise
+that over time, up-and-down designs concentrate these doses roughly
+symmetrically around the target percentile.</p>
+<p>Generally speaking, the “traditional” estimates are rather outdated
+and lack robustness. We recommend CIR as the standard estimator for
+up-and-down experiments (see e.g., <a href="https://cdn-links.lww.com/permalink/aln/c/aln_2022_05_25_oron_aln-d-21-01101_sdc1.pdf">Oron
+et al. 2022 supplement (pdf link)</a>).</p>
+</div>
+<div id="dose-response-plain-and-ed_50-estimates" class="section level2">
+<h2>Dose-Response Plain and ED<span class="math inline">\(_{50}\)</span>
+Estimates</h2>
+<p>To derive CIR estimates, we take the <code>DRtrace</code> trajectory
+objects and generate <code>doseResponse</code> dose-rate-count
+summaries.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>bhamou03ropiRates <span class="ot">=</span> <span class="fu">doseResponse</span>(bhamou03ropi)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>bhamou03levoRates <span class="ot">=</span> <span class="fu">doseResponse</span>(bhamou03levo)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(bhamou03ropiRates, <span class="at">row.names=</span><span class="cn">FALSE</span>,<span class="at">align=</span><span class="st">&#39;ccr&#39;</span>,<span class="at">digits=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">0</span>))</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="center">x</th>
+<th align="center">y</th>
+<th align="right">weight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">0.07</td>
+<td align="center">0.0000</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="center">0.08</td>
+<td align="center">0.3750</td>
+<td align="right">8</td>
+</tr>
+<tr class="odd">
+<td align="center">0.09</td>
+<td align="center">0.3846</td>
+<td align="right">13</td>
+</tr>
+<tr class="even">
+<td align="center">0.10</td>
+<td align="center">0.8000</td>
+<td align="right">10</td>
+</tr>
+<tr class="odd">
+<td align="center">0.11</td>
+<td align="center">0.7500</td>
+<td align="right">4</td>
+</tr>
+<tr class="even">
+<td align="center">0.12</td>
+<td align="center">1.0000</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(bhamou03levoRates, <span class="at">row.names=</span><span class="cn">FALSE</span>,<span class="at">align=</span><span class="st">&#39;ccr&#39;</span>,<span class="at">digits=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">0</span>))</span></code></pre></div>
+<table>
+<thead>
+<tr class="header">
+<th align="center">x</th>
+<th align="center">y</th>
+<th align="right">weight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">0.05</td>
+<td align="center">0.0000</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="center">0.06</td>
+<td align="center">0.2500</td>
+<td align="right">8</td>
+</tr>
+<tr class="odd">
+<td align="center">0.07</td>
+<td align="center">0.5455</td>
+<td align="right">11</td>
+</tr>
+<tr class="even">
+<td align="center">0.08</td>
+<td align="center">0.8333</td>
+<td align="right">6</td>
+</tr>
+<tr class="odd">
+<td align="center">0.09</td>
+<td align="center">0.3333</td>
+<td align="right">3</td>
+</tr>
+<tr class="even">
+<td align="center">0.10</td>
+<td align="center">0.4000</td>
+<td align="right">5</td>
+</tr>
+<tr class="odd">
+<td align="center">0.11</td>
+<td align="center">0.7500</td>
+<td align="right">4</td>
+</tr>
+</tbody>
+</table>
+<p>Let us visualize the response frequencies on <strong>the
+dose-response plane, which is “where CIR estimation action
+happens.”</strong> <em>(and likewise for any regression-based estimation
+of dose-response data)</em></p>
+<p>Analogously to the plots above, the plots below are native
+<code>cir</code> methods for <code>doseResponse</code> objects. Symbol
+area is proportional to the number of observations at each dose. To
+change to fixed-size, use <code>varsize=FALSE</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), <span class="at">las=</span><span class="dv">1</span>, <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">1</span>)) <span class="co"># image format parameters</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bhamou03ropiRates, <span class="at">xlab=</span><span class="st">&quot;Concentration (%)&quot;</span>, </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="at">ylab=</span><span class="st">&quot;Proportion Effective&quot;</span>, <span class="at">main=</span><span class="st">&#39;Ropivacaine Arm&#39;</span>, <span class="at">ylim=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Showing the target response rate</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>( <span class="at">h=</span><span class="fl">0.5</span>, <span class="at">col=</span><span class="st">&#39;purple&#39;</span>, <span class="at">lty=</span><span class="dv">2</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bhamou03levoRates, <span class="at">xlab=</span><span class="st">&quot;Concentration (%)&quot;</span>, </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="at">ylab=</span><span class="st">&quot;Proportion Effective&quot;</span>, <span class="at">main=</span><span class="st">&#39;Levobupivacaine Arm&#39;</span>, <span class="at">ylim=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>( <span class="at">h=</span><span class="fl">0.5</span>, <span class="at">col=</span><span class="st">&#39;purple&#39;</span>, <span class="at">lty=</span><span class="dv">2</span>)</span></code></pre></div>
+<p><img src="data:image/png;base64,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" width="800" height="400" /></p>
+<p>Target-dose estimation via regression is an <a href="https://en.wikipedia.org/wiki/Inverse_problem"><strong>“Inverse
+Problem”</strong></a>: we draw a line at the desired <span class="math inline">\(y\)</span> value (in this case, <span class="math inline">\(50\%\)</span> or 0.5, marked in purple), and look
+for the best-fitting <span class="math inline">\(x\)</span> value. With
+the Ropivacaine arm data (left), there’s a relatively clear transition
+between low-response and high-response regions, so the target seems to
+lie between concentrations <span class="math inline">\(0.09\)</span> and
+<span class="math inline">\(0.10\)</span>. We cannot be very confident
+of that, given the limited amount of information - but at least there’s
+a clear candidate.</p>
+<p>With Levobupivacaine data (right) the picture is far more murky.
+Concentrations <span class="math inline">\(0.07\)</span> and <span class="math inline">\(0.08\)</span> go above <span class="math inline">\(50\%\)</span> response, but <span class="math inline">\(0.09\)</span> and <span class="math inline">\(0.10\)</span> go back below that level! As we
+visualize near the end, CIR helps clear that murky picture via the
+simplest pooled response-rate averages that makes the overall
+dose-response curve obey monotonicity.</p>
+<p>But before going behind the scenes: from the
+<code>doseResponse</code> object, CIR estimation of <span class="math inline">\(F(x)\)</span> is only one step away.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quickIsotone</span>(bhamou03ropiRates, <span class="at">target=</span><span class="fl">0.5</span>, <span class="at">adaptiveShrink=</span><span class="cn">TRUE</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">#         x         y lower90conf upper90conf</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.07 0.07 0.1250000  0.01388341   0.4566917</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.08 0.08 0.3888889  0.17029265   0.6144262</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.09 0.09 0.3928571  0.20777116   0.6148574</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.1  0.10 0.6721501  0.46544685   0.8286039</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.11 0.11 0.8553030  0.55419939   0.9356434</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.12 0.12 1.0000000  0.57538267   1.0000000</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">quickIsotone</span>(bhamou03levoRates, <span class="at">target=</span><span class="fl">0.5</span>, <span class="at">adaptiveShrink=</span><span class="cn">TRUE</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#         x         y lower90conf upper90conf</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.05 0.05 0.1666667  0.01687173   0.4598125</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.06 0.06 0.2777778  0.10187230   0.5556723</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.07 0.07 0.5416667  0.31190997   0.7406421</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.08 0.08 0.5542328  0.34408940   0.7480747</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.09 0.09 0.5705255  0.37555944   0.7607139</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.1  0.10 0.6352627  0.39780747   0.8410408</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.11 0.11 0.7000000  0.42005550   0.9213677</span></span></code></pre></div>
+<p>Estimating the ED<span class="math inline">\(_{50}\)</span>, a.k.a.
+<strong>the target dose</strong>, is done very similarly:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>ropiTargetCIR <span class="ot">=</span> <span class="fu">quickInverse</span>(bhamou03ropiRates, <span class="at">target=</span><span class="fl">0.5</span>, <span class="at">adaptiveShrink=</span><span class="cn">TRUE</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>ropiTargetCIR </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   target      point lower90conf upper90conf</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1    0.5 0.09383622  0.07803226   0.1022733</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>levoTargetCIR <span class="ot">=</span> <span class="fu">quickInverse</span>(bhamou03levoRates, <span class="at">target=</span><span class="fl">0.5</span>, <span class="at">adaptiveShrink=</span><span class="cn">TRUE</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>levoTargetCIR</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   target      point lower90conf upper90conf</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 1    0.5 0.06842105   0.0586975   0.1127396</span></span></code></pre></div>
+<p>You can also do the estimation single-step from the <code>x, y</code>
+data; the functions will create a <code>doseResponse</code> object on
+the fly.</p>
+<div id="notes" class="section level3">
+<h3>Notes</h3>
+<ul>
+<li>The target-dose estimate appears under the word <code>point</code>:
+0.0938 for ropivacaine and 0.0684 for levobupivacaine.</li>
+<li>We specify the target response-rate as a fraction, via the
+<code>target</code> argument.</li>
+<li>Default CIs are 90% rather than 95%, due to the large variability
+and limited confidence in these typically small-sample experiments. To
+change it use the <code>conf</code> argument.</li>
+<li>The <code>adaptiveShrink</code> option performs an empirical
+correction of the bias induced by the adaptive design, a bias discovered
+and described recently by Flournoy and Oron.<a href="#fn6" class="footnote-ref" id="fnref6"><sup>6</sup></a> This type of bias is
+induced not just by UD designs, but also by model-based adaptive designs
+such as the Continual Reassessment Method. It is minimal near the target
+dose, but flares out to substantial magnitudes in both directions.
+<strong>Because of this bias, we strongly recommend to <em>not</em>
+estimate any target except 0.5 <em>(or a value very close to 0.5)</em>
+from these data, except for exploratory/illustrative purposes.</strong>
+The correction serves mostly to provide better CI coverage for the
+target dose estimate.</li>
+</ul>
+<p>Let us calculate 83% CIs, to evaluate the evidence for different
+potencies via the overlapping-intervals method.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>ropi83 <span class="ot">=</span> <span class="fu">quickInverse</span>(bhamou03ropiRates, <span class="at">target=</span><span class="fl">0.5</span>, <span class="at">adaptiveShrink=</span><span class="cn">TRUE</span>, <span class="at">conf=</span><span class="fl">0.83</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>ropi83</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   target      point lower83conf upper83conf</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1    0.5 0.09383622  0.07930257   0.1009814</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>levo83 <span class="ot">=</span> <span class="fu">quickInverse</span>(bhamou03levoRates, <span class="at">target=</span><span class="fl">0.5</span>, <span class="at">adaptiveShrink=</span><span class="cn">TRUE</span>, <span class="at">conf=</span><span class="fl">0.83</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>levo83</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   target      point lower83conf upper83conf</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 1    0.5 0.06842105  0.06006152   0.1085709</span></span></code></pre></div>
+<p>Paradoxically, despite using a point-estimation method very close to
+Pace and Stylianou’s (CIR is a minor upgrade of IR), we reach a
+conclusion similar to the original authors: <strong>the 83% confidence
+intervals do overlap, in fact they fully overlap - suggesting no
+evidence for a difference in potency</strong> at the <span class="math inline">\(\alpha=0.05\)</span> level.</p>
+<p>Interestingly, our point estimates are very similar to the
+Pace-Stylianou reanalysis, and so is our estimated levo/ropi potency
+ratio (1.37, quite a bit higher than Benhamou et al.’s 1.19).
+<strong>Where we part ways with Pace and Stylianou - dramatically - is
+indeed the confidence intervals for which our method is quite
+different.</strong> Pace and Stylianou used an adaptation of the
+bootstrap, whereas we use an analytical approach based on Morris’
+theoretical work with intervals for datasets with monotone dose-response
+data,<a href="#fn7" class="footnote-ref" id="fnref7"><sup>7</sup></a>
+the Delta method, and additional modifications to adapt to typical
+dose-finding data limitations.</p>
+<p>Looking in more detail at the two confidence limits with the biggest
+difference between our method and the boostrap: their <span class="math inline">\(83\%\)</span> LCL for Ropivacaine is <span class="math inline">\(0.087\)</span> - only 0.6 of a dose interval below
+their point estimate - whereas ours is <span class="math inline">\(0.079\)</span>, nearly 1.5 intervals below our
+point estimate. Even more dramatic is the difference between
+Levobupivacaine’s <span class="math inline">\(83\%\)</span> UCLs: <span class="math inline">\(0.081\)</span> (1.3 intervals above
+point-estimate) vs. <span class="math inline">\(0.109\)</span> (a full 4
+intervals above that estimate).</p>
+<p>Conceptually, the bootstrap CIs appear unrealistically narrow given
+the amount of information available - only 39 binary observations spread
+over several doses. By the way, we can use the same
+<code>quickInverse()</code> function to reproduce the Pace-Stylianou
+<em>point</em> estimates (but not the CIs, since <code>cir</code> does
+not implement the bootstrap approach):</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>PSropiEstimate <span class="ot">=</span> <span class="fu">quickInverse</span>(bhamou03ropiRates, <span class="at">target=</span><span class="fl">0.5</span>, <span class="at">estfun=</span>oldPAVA, <span class="at">conf=</span><span class="fl">0.83</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>PSropiEstimate</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   target      point lower83conf upper83conf</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 1    0.5 0.09287671  0.07993606  0.09833028</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>PSlevoEstimate <span class="ot">=</span><span class="fu">quickInverse</span>(bhamou03levoRates, <span class="at">target=</span><span class="fl">0.5</span>, <span class="at">estfun=</span>oldPAVA, <span class="at">conf=</span><span class="fl">0.83</span>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>PSlevoEstimate</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   target      point lower83conf upper83conf</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 1    0.5 0.06846154  0.06239064   0.1067093</span></span></code></pre></div>
+<p>Note the argument specifying the <code>oldPAVA()</code> estimation
+function (PAVA is the name of the leading algorithm to produce IR
+estimates; the package default is <code>cirPAVA()</code>, i.e.,
+CIR).</p>
+<p>Let us visualize more clearly the CIR estimates, and the argument for
+wider intervals from this dataset.</p>
+</div>
+</div>
+<div id="visualizing-cir-on-the-dose-response-plane" class="section level2">
+<h2>Visualizing CIR on the Dose-Response Plane</h2>
+<p>To construct the full estimated <span class="math inline">\(F(x)\)</span> curves from IR and CIR, we call
+<code>cir</code>’s <em>“long-form”</em> forward-estimation
+functions:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>ropiCurveIR <span class="ot">=</span> <span class="fu">oldPAVA</span>(bhamou03ropiRates, <span class="at">full=</span><span class="cn">TRUE</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>ropiCurveCIR <span class="ot">=</span> <span class="fu">cirPAVA</span>(bhamou03ropiRates, <span class="at">target=</span><span class="fl">0.5</span>, <span class="at">adaptiveShrink=</span><span class="cn">TRUE</span>, <span class="at">full=</span><span class="cn">TRUE</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>levoCurveIR <span class="ot">=</span> <span class="fu">oldPAVA</span>(bhamou03levoRates, <span class="at">full=</span><span class="cn">TRUE</span>)</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>levoCurveCIR <span class="ot">=</span> <span class="fu">cirPAVA</span>(bhamou03levoRates, <span class="at">target=</span><span class="fl">0.5</span>, <span class="at">adaptiveShrink=</span><span class="cn">TRUE</span>, <span class="at">full=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<p>With <code>full=TRUE</code>, each of these returns a list of three
+<code>doseResponse</code> objects. Here’s one example:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>levoCurveCIR</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># $output</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#         x         y weight</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.05 0.05 0.1666667      2</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.06 0.06 0.2777778      8</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.07 0.07 0.5416667     11</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.08 0.08 0.5542328      6</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.09 0.09 0.5705255      3</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.1  0.10 0.6352627      5</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.11 0.11 0.7000000      4</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="co"># $input</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="co">#         x         y weight</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.05 0.05 0.1666667      2</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.06 0.06 0.2777778      8</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.07 0.07 0.5416667     11</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.08 0.08 0.7857143      6</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.09 0.09 0.3750000      3</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.1  0.10 0.4166667      5</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.11 0.11 0.7000000      4</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co"># $shrinkage</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="co">#               x         y weight</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.05 0.05000000 0.1666667      2</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.06 0.06000000 0.2777778      8</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.07 0.07000000 0.5416667     11</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.08 0.08928571 0.5659014     14</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="co"># 0.11 0.11000000 0.7000000      4</span></span></code></pre></div>
+<ul>
+<li><code>$output</code> is the estimates at the original doses
+<em>(which is what <code>quickIsotone()</code> returns sans the
+CIs)</em>,</li>
+<li><code>$input</code> is the incoming data, and</li>
+<li><code>$shrinkage</code> is the output at the doses where the
+algorithm makes the pooled estimates (then interpolated to generate
+<code>$output</code>). IOW, <strong><code>$shrinkage</code> is the
+actual regression curve found by the algorithm.</strong> With
+<code>oldPAVA()</code>, this component will always be identical to
+<code>$output</code>.</li>
+</ul>
+<p>We end with the dose-response plots, the regression curves and the
+target estimates, with the two arms aligned and arranged vertically to
+help visualize the CI overlap.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">1</span>), <span class="at">las=</span><span class="dv">1</span>, <span class="at">mar=</span><span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">1</span>)) <span class="co"># image format parameters</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bhamou03ropiRates, <span class="at">xlab=</span><span class="st">&quot;Concentration (%)&quot;</span>, </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">&quot;Proportion Effective&quot;</span>, <span class="at">main=</span><span class="st">&#39;Ropivacaine Arm&#39;</span>, </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylim=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.12</span>), <span class="at">dosevals =</span> (<span class="dv">5</span><span class="sc">:</span><span class="dv">12</span>)<span class="sc">/</span><span class="dv">100</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding IR and CIR lines with the same colors/lines as article’s Fig. 4</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(y<span class="sc">~</span>x, <span class="at">data=</span>ropiCurveIR<span class="sc">$</span>output, <span class="at">lty=</span><span class="dv">2</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(y<span class="sc">~</span>x, <span class="at">data=</span>ropiCurveCIR<span class="sc">$</span>shrinkage, <span class="at">col=</span><span class="st">&#39;blue&#39;</span>,<span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Showing the CIR estimate, and confidence interval as a horizontal line</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(target <span class="sc">~</span> point, <span class="at">data=</span>ropiTargetCIR, <span class="at">col=</span><span class="st">&#39;purple&#39;</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">cex=</span><span class="dv">2</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">c</span>(ropi83<span class="sc">$</span>lower83conf,ropi83<span class="sc">$</span>upper83conf), <span class="fu">rep</span>(<span class="fl">0.5</span>,<span class="dv">2</span>), <span class="at">col=</span><span class="st">&#39;purple&#39;</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># The estimate appearing in Pace and Stylianou 2007, nudged 0.01 units down:</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">I</span>(target<span class="fl">-0.01</span>) <span class="sc">~</span> point, <span class="at">data=</span>PSropiEstimate, <span class="at">cex=</span><span class="dv">2</span>)</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">c</span>(<span class="fl">0.087</span>, <span class="fl">0.097</span>), <span class="fu">rep</span>(<span class="fl">0.49</span>,<span class="dv">2</span>))</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding legend:</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&#39;topleft&#39;</span>, <span class="at">legend=</span><span class="fu">c</span>(<span class="st">&quot;Observed Proportions&quot;</span>, <span class="st">&#39;Isotonic Regression&#39;</span>,</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&#39;Centered Isotonic Regression&#39;</span>, <span class="fu">paste</span>(<span class="fu">c</span>(<span class="st">&#39;CIR&#39;</span>, <span class="dv">2007</span>), <span class="st">&#39;Estimate +/- 83% CI&#39;</span>)),</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">bty=</span><span class="st">&#39;n&#39;</span>,<span class="at">pch=</span><span class="fu">c</span>(<span class="dv">4</span>,<span class="cn">NA</span>,<span class="cn">NA</span>,<span class="dv">16</span>,<span class="dv">1</span>), <span class="at">col=</span><span class="fu">c</span>(<span class="st">&#39;black&#39;</span>,<span class="st">&#39;black&#39;</span>,<span class="st">&#39;blue&#39;</span>,<span class="st">&#39;purple&#39;</span>, <span class="st">&#39;black&#39;</span>), <span class="at">lty=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>))</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="do">### Now, second plot for Levobupivacaine</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bhamou03levoRates, <span class="at">xlab=</span><span class="st">&quot;Concentration (%)&quot;</span>, </span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">&quot;Proportion Effective&quot;</span>, <span class="at">main=</span><span class="st">&#39;Levobupivacaine Arm&#39;</span>, </span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylim=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.12</span>), <span class="at">dosevals =</span> (<span class="dv">5</span><span class="sc">:</span><span class="dv">12</span>)<span class="sc">/</span><span class="dv">100</span>)</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(y<span class="sc">~</span>x, <span class="at">data=</span>levoCurveIR<span class="sc">$</span>output, <span class="at">lty=</span><span class="dv">2</span>)</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(y<span class="sc">~</span>x, <span class="at">data=</span>levoCurveCIR<span class="sc">$</span>shrinkage, <span class="at">col=</span><span class="st">&#39;blue&#39;</span>,<span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(target <span class="sc">~</span> point, <span class="at">data=</span>levoTargetCIR, <span class="at">col=</span><span class="st">&#39;purple&#39;</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">cex=</span><span class="dv">2</span>)</span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">c</span>(levo83<span class="sc">$</span>lower83conf,levo83<span class="sc">$</span>upper83conf), <span class="fu">rep</span>(<span class="fl">0.5</span>,<span class="dv">2</span>), <span class="at">col=</span><span class="st">&#39;purple&#39;</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a><span class="fu">points</span>(<span class="fu">I</span>(target<span class="fl">-0.01</span>) <span class="sc">~</span> point, <span class="at">data=</span>PSlevoEstimate, <span class="at">cex=</span><span class="dv">2</span>)</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">c</span>(<span class="fl">0.059</span>, <span class="fl">0.081</span>), <span class="fu">rep</span>(<span class="fl">0.49</span>,<span class="dv">2</span>))</span></code></pre></div>
+<p><img src="data:image/png;base64,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" width="500" height="1000" /></p>
+<div id="notes-1" class="section level3">
+<h3>Notes</h3>
+<ul>
+<li><p>The 2007 CIs were shifted slightly downward in the plot, to make
+them visible.</p></li>
+<li><p>Referring back to the “murky” picture around target in the
+Levobupivacaine dose-response plots, we see that both IR (black dashes)
+and CIR (solid blue) pool the observations from <span class="math inline">\(x = 0.08, 0,09, 0.10\)</span> into a single
+weighted average <span class="math inline">\(y\)</span> value, which is
+only slightly higher than the estimate at <span class="math inline">\(x
+= 0.07.\)</span> The main difference is that IR creates a flat “stretch”
+with that pooled <span class="math inline">\(y\)</span> value, whereas
+CIR also pools along the <span class="math inline">\(x\)</span> axis
+into a single point on the dose-response plain. So both these
+nonparametric algorithms <em>“convert the murkiness”</em> into
+concluding (with very limited confidence, given the overall small <span class="math inline">\(n\)</span>) that <strong><span class="math inline">\(F(x)\)</span> is very shallow for a long stretch,
+right above the <span class="math inline">\(y = 0.5\)</span> target
+response rate.</strong></p></li>
+<li><p>We see how the CIR intervals stretch to accommodate this
+shallowness. Indeed, <strong>our confidence-interval method for inverse
+estimation is driven by local slope around target</strong>, which we
+believe is the more correct approach.</p></li>
+<li><p>Take in particular the Levobupivacaine plot at <span class="math inline">\(x = 0.10\)</span>. The CIR estimate of <span class="math inline">\(F(x)\)</span> there is 0.635. The IR estimate
+which is what Pace and Stylianou used to inform their bootstrap, is
+0.571 - even closer to the <span class="math inline">\(50\%\)</span>
+study target-rate, and statistically indistinguishable from it at these
+sample sizes. Yet, <span class="math inline">\(0.10\)</span> lies not
+only outside the 2007 bootstrap’s <span class="math inline">\(83\%\)</span> CI, but also outside the <span class="math inline">\(95\%\)</span> CI (which is <span class="math inline">\(0.058, 0.095\)</span>). This suggests that the
+bootstrap intervals are substantially too short.</p></li>
+<li><p>Prior to <code>cir</code> package version 2.3.0, the estimated
+slope informing the CI was the same to the right and left of target, and
+hence CIs were usually near-symmetric <em>(and in this particular
+example, much shorter)</em>. We now estimate different <em>“left”</em>
+and <em>“right”</em> slopes. To revert to the single-slope version, use
+the argument <code>slopeRefinement = FALSE</code> in your
+<code>quickInverse()</code> call.<br />
+</p></li>
+<li><p>In this demonstration the CIR curves differ from the ordinary IR
+curves not only in the CIR algorithm that “shrinks” horizontal intervals
+to single points, but also in the bias correction found by Flournoy and
+Oron (2020) and mentioned earlier. In principle this correction is
+compatible with both methods, but here we applied it only to CIR,
+because it did not exist at the time of Pace and Stylianou’s
+article.</p></li>
+</ul>
+</div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+</div>
+<div class="footnotes footnotes-end-of-document">
+<hr />
+<ol>
+<li id="fn1"><p>Benhamou D, Ghosh C, Mercier FJ. A Randomized Sequential
+Allocation Study to Determine the Minimum Effective Analgesic
+Concentration of Levobupivacaine and Ropivacaine in Patients Receiving
+Epidural Analgesia for Labor. Anesthesiology. 2003;99(6):1383-1386.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Pace NL, Stylianou MP. Advances in and Limitations of
+Up-and-down Methodology: A Précis of Clinical Use, Study Design, and
+Dose Estimation in Anesthesia Research. Anesthesiology.
+2007;107(1):144-152.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>Oron AP, Flournoy N. Centered Isotonic Regression: Point
+and Interval Estimation for Dose-Response Studies. Stat Biopharm Res.
+2017;9(3):258-267.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>Oron AP, Souter MJ, Flournoy N. Understanding Research
+Methods: Up-and-down Designs for Dose-finding. <em>Anesthesiology</em>
+2022; 137:137–50. See also the online supplement.<a href="#fnref4" class="footnote-back">↩︎</a></p></li>
+<li id="fn5"><p>Payton ME, Greenstone MH, Schenker N. Overlapping
+confidence intervals or standard error intervals: What do they mean in
+terms of statistical significance? J Insect Sci. 2003;3(1).<a href="#fnref5" class="footnote-back">↩︎</a></p></li>
+<li id="fn6"><p>Flournoy N, Oron AP. Bias induced by adaptive
+dose-finding designs. J Appl Stat. 2020;47(13-15):2431-2442.<a href="#fnref6" class="footnote-back">↩︎</a></p></li>
+<li id="fn7"><p>Morris MD. Small-Sample Confidence Limits for Parameters
+under Inequality Constraints with Application to Quantal Bioassay.
+Biometrics. 1988;44:1083-1092.<a href="#fnref7" class="footnote-back">↩︎</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -6,7 +6,7 @@
 #'
 #' This is the underlying "engine" function implementing CIR. For a quick and somewhat more user-friendly wrapper, use \code{\link{quickIsotone}}. CIR is a variation of isotonic regression (IR) that shrinks IR's constant ("flat") intervals to single points and interpolates between these points, generating a curve that is strictly monotone everywhere except (possibly) near the boundaries.
 #'
-#' Flat intervals in the raw input data, are handled with care. Under the default setting (\code{strict=FALSE,interiorStrict=TRUE}), flat intervals are treated as monotonicity violations, unless the $y$ value is on the boundary of its allowed range (default $[0,1]$, appropriate for binary-response data). On that boundary, flat intervals are left unchanged.
+#' Flat intervals in the raw input data, are handled with care. Under the default setting (\code{strict=FALSE,interiorStrict=TRUE}), flat intervals are treated as monotonicity violations, unless the \eqn{y} value is on the boundary of its allowed range (default \eqn{[0,1]}, appropriate for binary-response data). On that boundary, flat intervals are left unchanged.
 #' 
 #' The algorithm is documented and discussed in Oron and Flournoy (2017). The function now include an \code{adaptiveShrink} option, to mitigate bias caused when using adaptive designs (Flournoy and Oron, 2020). 
 #' 
@@ -34,7 +34,8 @@
 #' @seealso \code{\link{oldPAVA}},\code{\link{quickIsotone}}; \code{\link{DRshrink}} for explanation about \code{adaptiveShrink}.
 #' @export
 #' 
-cirPAVA <-function (y,x=NULL,wt=NULL,outx=NULL,full=FALSE,dec=FALSE,strict=FALSE,interiorStrict=TRUE,ybounds=0:1,adaptiveShrink=FALSE,...) {
+cirPAVA <-function (y, x=NULL, wt=NULL, outx=NULL, full=FALSE, dec=FALSE, strict=FALSE,
+                    interiorStrict=TRUE, ybounds=0:1, adaptiveShrink=FALSE,...) {
 
 ### converting to doseResponse object 
 ### Basically it's a numeric data frame with x,y,weight, and x increasing
@@ -161,7 +162,8 @@ if (!full) {
 #' @note If the data were obtained from an adaptive dose-finding design then away from the design's target the estimates are likely biased (Flournoy and Oron, 2020). Use \code{adaptiveShrink=TRUE} to mitigate the bias. 
 
 
-quickIsotone<-function (y,x=NULL,wt=NULL,outx=NULL,dec=FALSE,estfun=cirPAVA,intfun=morrisCI,conf=0.9,adaptiveShrink=FALSE,...) 
+quickIsotone<-function (y, x=NULL, wt=NULL, outx=NULL, dec=FALSE, estfun=cirPAVA,
+                        intfun=morrisCI, conf=0.9, adaptiveShrink=FALSE,...) 
 {
 dr=doseResponse(y=y,x=x,wt=wt,...)
 # Adaptive-design shrinkage fix
