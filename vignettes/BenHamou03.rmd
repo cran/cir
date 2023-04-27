@@ -12,6 +12,7 @@ vignette: >
 
 ```{r setup, include = FALSE}
 #### Note to self: Use this whenever editing the vignette for resubmission/rebuild
+#   (after the final CRAN-compatibility check)
 # tools::buildVignettes(dir = '.',  tangle=TRUE)
 #  (You can also replace the 2 lines below here with point/click directory creation and file copy/paste)
 # dir.create("inst/doc")
@@ -145,13 +146,13 @@ levo83 = quickInverse(bhamou03levoRates, target=0.5, adaptiveShrink=TRUE, conf=0
 levo83
 ```
 
-Paradoxically, despite using a point-estimation method very close to Pace and Stylianou's (CIR is a minor upgrade of IR), we reach a conclusion similar to the original authors: **the 83% confidence intervals do overlap, in fact they fully overlap - suggesting no evidence for a difference in potency** at the $\alpha=0.05$ level. 
+Paradoxically, despite using a point-estimation method very close to Pace and Stylianou's (CIR is a minor upgrade of IR), we reach a conclusion similar to the original authors: **the 83% confidence intervals do overlap, suggesting no evidence for a difference in potency** at the $\alpha=0.05$ level. 
 
-Interestingly, our point estimates are very similar to the Pace-Stylianou reanalysis, and so is our estimated levo/ropi potency ratio (1.37, quite a bit higher than Benhamou et al.’s 1.19).  **Where we part ways with Pace and Stylianou - dramatically - is indeed the confidence intervals for which our method is quite different.** Pace and Stylianou used an adaptation of the bootstrap, whereas we use an analytical approach based on Morris’ theoretical work with intervals for datasets with monotone dose-response data,^[Morris MD. Small-Sample Confidence Limits for Parameters under Inequality Constraints with Application to Quantal Bioassay. Biometrics. 1988;44:1083-1092.] the Delta method, and additional modifications to adapt to typical dose-finding data limitations.
+Indeed, our point estimates are very similar to the Pace-Stylianou reanalysis, and so is our estimated levo/ropi potency ratio (1.37, quite a bit higher than Benhamou et al.’s 1.19).  **Where we part ways with Pace and Stylianou - dramatically - is indeed the confidence intervals for which our method is quite different.** Pace and Stylianou used an adaptation of the bootstrap, whereas we use an analytical approach based on Morris’ theoretical work with intervals for datasets with monotone dose-response data,^[Morris MD. Small-Sample Confidence Limits for Parameters under Inequality Constraints with Application to Quantal Bioassay. Biometrics. 1988;44:1083-1092.] the Delta method, and additional modifications to adapt to typical dose-finding data limitations.
 
-Looking in more detail at the two confidence limits with the biggest difference between our method and the boostrap: their $83\%$ LCL for Ropivacaine is $0.087$ - only 0.6 of a dose interval below their point estimate  - whereas ours is $0.079$, nearly 1.5 intervals below our point estimate. Even more dramatic is the difference between Levobupivacaine's $83\%$ UCLs: $0.081$ (1.3 intervals above point-estimate) vs. $0.109$ (a full 4 intervals above that estimate).  
+Looking in more detail at the two confidence limits with the biggest difference between our method and the boostrap: their $83\%$ LCL for Ropivacaine is $0.087$ - only 0.6 of a dose-spacing step below their point estimate  - whereas ours is `r round(ropi83$lower83conf, 3)`, nearly 1.5 spacings below our point estimate. Their Levobupivacaine $83\%$ UCL is $0.081$ (1.3 spacings above point-estimate) vs. `r round(levo83$upper83conf, 3)` (>2 spacings above that estimate).  Conceptually, the bootstrap CIs appear unrealistically narrow given the amount of information available - only 39 binary observations spread over several doses. 
 
-Conceptually, the bootstrap CIs appear unrealistically narrow given the amount of information available - only 39 binary observations spread over several doses. By the way, we can use the same `quickInverse()` function to reproduce the Pace-Stylianou *point* estimates (but not the CIs, since `cir` does not implement the bootstrap approach):
+By the way, we can use the same `quickInverse()` function to reproduce the Pace-Stylianou *point* estimates (but not the CIs, since `cir` does not implement the bootstrap approach):
 
 ```{r pacesty}
 PSropiEstimate = quickInverse(bhamou03ropiRates, target=0.5, estfun=oldPAVA, conf=0.83)
@@ -186,6 +187,8 @@ levoCurveCIR
  - `$shrinkage` is the output at the doses where the algorithm makes the pooled estimates (then interpolated to generate `$output`). IOW, **`$shrinkage` is the actual regression curve found by the algorithm.** With `oldPAVA()`, this component will always be identical to `$output`.
 
 We end with the dose-response plots, the regression curves and the target estimates, with the two arms aligned and arranged vertically to help visualize the CI overlap.
+
+**As can be seen below, in `cir` this takes quite a bit of coding. In the new `upndown` package dedicated to up-and-down designs *(currently in beta version on GitHub `assaforon/upndown`, and soon also on CRAN)*, most of what you see in the plot can be achieved in a single command with the `drplot()` utility** (which does of course rely on `cir` functions in the background).
 
 ```{r drfig,fig.width=6,fig.height=12,out.height=1000,out.width=500}
 par(mfrow=c(2,1), las=1, mar=c(4,4,4,1)) # image format parameters

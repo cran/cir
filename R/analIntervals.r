@@ -56,7 +56,7 @@ return(data.frame(ciLow=lcl,ciHigh=ucl))
 #'
 #' The Delta method in this application boils down to dividing the distance to the forward (vertical) bounds, by the slope, to get the left/right interval width. Both forward intervals and slopes are calculated across a standard set of \eqn{x} values, then interpolated at horizontal cross-sections determined by `target`. Slope estimates are performed by \code{\link{slope}}. 
 #' 
-#' Starting version 2.3.0, by default the slope estimate is different to the right and left of target. The intervals should now better accommodate the sharp slope changes that often happen with discrete dose-response datasets. Operationally, the intervals are first estimated via the single-slope approach described above. Then using a finer grid of \eqn{x} values, weighted-harmonic-average slopes to the right and left of the point estimate separately are calculated over the first-stage's half-intervals. The weights are hard-coded as quadratic (Epanechnikov). 
+#' Starting version 2.3.0, by default the slope estimate is different to the right and left of target. The intervals should now better accommodate the sharp slope changes that often happen with discrete dose-response datasets. Operationally, the intervals are first estimated via the single-slope approach described above. Then using a finer grid of \eqn{x} values, weighted-average slopes to the right and left of the point estimate separately are calculated over the first-stage's half-intervals. The weights are hard-coded as quadratic (Epanechnikov). 
 #' 
 #' An alternative and much simpler interval method (dubbed "global") is hard-coded into \code{\link{quickInverse}}, and can be chosen from there as an option. But it is not recommended.
 #' 
@@ -70,7 +70,7 @@ return(data.frame(ciLow=lcl,ciHigh=ucl))
 #' @param intfun the function to be used for initial (forward) interval estimation. Default \code{\link{morrisCI}} (see help on that function for additional options).
 #' @param conf numeric, the interval's confidence level as a fraction in (0,1). Default 0.9.
 #' @param adaptiveCurve logical, should the CIs be expanded by using a parabolic curve between estimation points rather than straight interpolation (default \code{FALSE})? Recommended when adaptive design was used and \code{target} is not 0.5.
-#' @param minslope minimum local slope considered positive, passed on to \code{\link{slope}}. Needed to avoid unrealistically broad intervals. Default 0.01.
+#' @param minslope minimum local slope (subsequently normalized by the units dose spacing) considered positive, passed on to \code{\link{slope}}. Needed to avoid unrealistically broad intervals. Default 0.01.
 #' @param slopeRefinement **(new to 2.3.0)** logical: whether to allow refinement of the slope estimate, including different slopes to the left and right of target. Default `TRUE`. See Details.
 #' @param finegrid a numerical value used to guide how fine the grid of `x` values will be during slope estimation. Should be in (0,1) (preferably much less than 1). Default 0.05.
 #' @param ... additional arguments passed on to \code{\link{quickIsotone}}
@@ -93,6 +93,10 @@ yval0=sort(unique(isotPoint$shrinkage$y))
 n=isotPoint$shrinkage$weight
 m = length(xvals)
 
+# Normalizing minslope
+minslope = minslope / mean(diff(isotPoint$input$x))
+
+
 ## degenerate case, completely flat or otherwise useless
 if(sum(n>0)<2 || is.null(yval0) || length(yval0)<=1 || 
     var(yvals)<.Machine$double.eps*1e3) return(cbind(rep(NA,k),rep(NA,k))) 
@@ -105,14 +109,16 @@ xout = sort( unique( c(xvals, xvals[-m] + finegrid*xgaps, xvals[-1] - finegrid*x
 
 festimate=approx(isotPoint$shrinkage$x,isotPoint$shrinkage$y, xout=xout)$y
 cestimate=isotInterval(isotPoint,conf=conf, intfun=intfun, outx=xout, ...)
+#return(list(xout, festimate, cestimate))
 fslopes=slope(isotPoint$shrinkage$x,isotPoint$shrinkage$y, outx=xout, tol=minslope)
 # return(list(festimate, cestimate, fslopes))
 
 # inverse widths raw
 rwidths=(festimate-cestimate$ciLow)/fslopes
 lwidths=(festimate-cestimate$ciHigh)/fslopes
-#return(cbind(lwidths, rwidths))
+# return(cbind(xout, lwidths, rwidths))
 
+### New since 2.3.0: slope refinement to right/left slope, and generally wider CIs
 if(slopeRefinement)
 {
   # Now we actually need the point estimates and the slopes at them
@@ -120,10 +126,9 @@ if(slopeRefinement)
   
 #  tslopes=slope(isotPoint$shrinkage$x,isotPoint$shrinkage$y, outx=testimate, tol=minslope)
   
-  # return(data.frame(lout,testimate,rout))  
   gridx = unique(c( seq(min(xvals), max(xvals), finegrid * diff(range(xvals)) / (m-1) ), max(xvals) ) )
   gridslopes=slope(isotPoint$shrinkage$x,isotPoint$shrinkage$y, outx=gridx, tol=minslope)
- #   return(gridslopes)
+#    return(gridslopes)
     
   # "Long coding" this part for clarity?
   newslopes = data.frame(left=rep(NA, length(xout)), right=rep(NA, length(xout)) )
@@ -133,11 +138,13 @@ if(slopeRefinement)
 #        return(tmp)
     ntmp = length(tmp)
 #  cat(a, ntmp,'\n')
-    newslopes$left[a]  = 1 / weighted.mean(1/tmp, w = (1:ntmp)^2)
+    newslopes$left[a]  = ifelse(ntmp==0, fslopes[a], weighted.mean(tmp, w = (1:ntmp)^2) )
     
     tmp = gridslopes[gridx <= xout[a]+rwidths[a] & gridx >= xout[a] ]
     ntmp = length(tmp)
-    newslopes$right[a] = 1 / weighted.mean(1/tmp, w = (ntmp:1)^2)
+#  cat(a, ntmp,'\n')
+    
+    newslopes$right[a] = ifelse(ntmp==0, fslopes[a], weighted.mean(tmp, w = (ntmp:1)^2) )
   }
 #  return(newslopes)
 

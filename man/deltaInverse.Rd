@@ -27,7 +27,7 @@ deltaInverse(
 
 \item{adaptiveCurve}{logical, should the CIs be expanded by using a parabolic curve between estimation points rather than straight interpolation (default \code{FALSE})? Recommended when adaptive design was used and \code{target} is not 0.5.}
 
-\item{minslope}{minimum local slope considered positive, passed on to \code{\link{slope}}. Needed to avoid unrealistically broad intervals. Default 0.01.}
+\item{minslope}{minimum local slope (subsequently normalized by the units dose spacing) considered positive, passed on to \code{\link{slope}}. Needed to avoid unrealistically broad intervals. Default 0.01.}
 
 \item{slopeRefinement}{\strong{(new to 2.3.0)} logical: whether to allow refinement of the slope estimate, including different slopes to the left and right of target. Default \code{TRUE}. See Details.}
 
@@ -44,7 +44,7 @@ Calculate left-bound to right-bound intervals for the dose point estimates, usin
 \details{
 The Delta method in this application boils down to dividing the distance to the forward (vertical) bounds, by the slope, to get the left/right interval width. Both forward intervals and slopes are calculated across a standard set of \eqn{x} values, then interpolated at horizontal cross-sections determined by \code{target}. Slope estimates are performed by \code{\link{slope}}.
 
-Starting version 2.3.0, by default the slope estimate is different to the right and left of target. The intervals should now better accommodate the sharp slope changes that often happen with discrete dose-response datasets. Operationally, the intervals are first estimated via the single-slope approach described above. Then using a finer grid of \eqn{x} values, weighted-harmonic-average slopes to the right and left of the point estimate separately are calculated over the first-stage's half-intervals. The weights are hard-coded as quadratic (Epanechnikov).
+Starting version 2.3.0, by default the slope estimate is different to the right and left of target. The intervals should now better accommodate the sharp slope changes that often happen with discrete dose-response datasets. Operationally, the intervals are first estimated via the single-slope approach described above. Then using a finer grid of \eqn{x} values, weighted-average slopes to the right and left of the point estimate separately are calculated over the first-stage's half-intervals. The weights are hard-coded as quadratic (Epanechnikov).
 
 An alternative and much simpler interval method (dubbed "global") is hard-coded into \code{\link{quickInverse}}, and can be chosen from there as an option. But it is not recommended.
 }
@@ -54,25 +54,32 @@ An alternative and much simpler interval method (dubbed "global") is hard-coded 
 dat=doseResponse(y=c(1/7,1/8,1/2,1/4,4/17), wt=c(7,24,20,12,17))
 # The experiment's goal is to find the 30th percentile
 quick1=quickIsotone(dat, adaptiveShrink = TRUE, target = 0.3)
+
 # For inverse confidence intervals "the long way", 
 #    we need a full CIR output object:
 fwd1=cirPAVA(dat, full=TRUE, adaptiveShrink = TRUE, target = 0.3)
-# Inverse intervals at doses
-invDelta=deltaInverse(fwd1, target = NULL)
+# Inverse intervals. 
+# Note: 'target' specifies the y values at which the interval is calculated.
+#       They are selected here based on the y range in which there are estimates.
+yvals = c(seq(0.15, 0.3, 0.05), 0.33)
+invDelta=deltaInverse(fwd1, target = yvals, adaptiveCurve = TRUE)
+# We added the adaptiveCurve option because the experiment's target is off-center,
+#     and inverse-interval coverage tends to be lacking w/o that option.
 
 ### Showing the data and the estimates
 par(mar=c(3,3,4,1), mgp=c(2,.5,0), tcl=-0.25)
 # Following command uses plot.doseResponse()
 plot(dat, ylim=c(0.05,0.55), 
-     las=1, xlim=c(0,6), main="Inverse-Estimation CIs") 
+     las=1, xlim=c(0,6.5), main="Inverse-Estimation CIs") 
 
 # The true response function; true target is where it crosses the y=0.3 line
-lines(seq(0,7,0.1), pweibull(seq(0,7,0.1), shape=1.1615, scale=8.4839), col=4)
-abline(h=0.3, col=2, lty=3) ### The experiment's official target
+lines(seq(0,7,0.1), pweibull(seq(0,7,0.1), shape=1.1615, scale=8.4839), col=4, lwd=1.5)
+abline(h=0.3, col=2, lwd=2, lty=3) ### The experiment's official target
 
 # Forward CIs; the "global" inverse interval just draws horizontal lines between them
 # To get these "global" intervals calculated for you at specific targets, choose 'delta=FALSE' 
 #      when calling quickInverse()
+lines(quick1$y, lwd=1.5, col='purple') 
 lines(quick1$lower90conf,lty=2,col=3) 
 lines(quick1$upper90conf,lty=2,col=3) 
 # Note that only the upper forward bounds intersect the horizontal line at y=0.3.
@@ -80,11 +87,13 @@ lines(quick1$upper90conf,lty=2,col=3)
 
 # Now, the default "local" inverse interval, which is finite for the range of estimated y values.
 # In particular, it is finite (albeit very wide) for y=0.3.
-lines(invDelta[,1],quick1$y,lty=2, lwd=2)
-lines(invDelta[,2],quick1$y,lty=2, lwd=2)
+lines(invDelta[,1], yvals, lty=2, lwd=2)
+lines(invDelta[,2], yvals, lty=2, lwd=2)
 
-legend('topleft',pch=c(NA,'X',NA,NA),lty=c(1,NA,2,2), col=c(4,1,1,3), lwd=c(1,0,2,1),
-       legend = c('True Curve', 'Observations', 'Local Interval (default)',
+legend('topleft', pch=c(NA,NA,'X',NA,NA), lty=c(1,1,NA,2,2), 
+       col=c(4,'purple', 1,1,3), lwd=c(1.5,1.5,0,2,1),
+       legend = c('True Curve', 'CIR Curve', 'Observations', 
+                  'Local Interval (default)',
                   'Forward/Global Interval'), bty='n')
 
 }

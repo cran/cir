@@ -1,5 +1,6 @@
 ## ----setup, include = FALSE---------------------------------------------------
 #### Note to self: Use this whenever editing the vignette for resubmission/rebuild
+#   (after the final CRAN-compatibility check)
 # tools::buildVignettes(dir = '.',  tangle=TRUE)
 #  (You can also replace the 2 lines below here with point/click directory creation and file copy/paste)
 # dir.create("inst/doc")

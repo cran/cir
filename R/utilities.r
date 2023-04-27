@@ -125,7 +125,7 @@ return(list(a=a,b=b,c=cee,outdat=data.frame(x=xout,y=yout)))
 #' @seealso \code{\link{deltaInverse}}, which uses this function.
 #' @export
 
-slope<-function(x, y, outx=x, allowZero=FALSE, tol=1e-2, full=FALSE, decreasing=FALSE)
+slope <- function(x, y, outx=x, allowZero=FALSE, tol=1e-2, full=FALSE, decreasing=FALSE)
 {
 ### Validation (might be mostly redundant if using doseResponse as input)
 y=round(y,8)  # underflow error prevention
@@ -143,7 +143,7 @@ sslopes=c(slopes[1],slopes,slopes[m-1])  ### so that the edges get only the inwa
 interval=findInterval(outx,x)
 ## The trivial ones
 candidate=slopes[interval]
-## ones falling on design points
+## ones falling on design points get the average of the two segments
 design=which(outx %in% x)
 if (length(design)>0) {
 	for(a in design) candidate[a]=(sslopes[interval[a]]+sslopes[interval[a]+1])/2
@@ -153,18 +153,19 @@ candidate0=candidate
 ## tougher nut: zero slope
 if(!allowZero && any(candidate<tol))
 {
-	xstep=mean(xdiffs)
-	for (a in which(candidate<tol))
-	{	
-		b=0
-		while(candidate[a]<tol)
-		{
-			b=b+1
-			xends=c(max(x[1],outx[a]-b*xstep),min(x[m],outx[a]+b*xstep))
-			yends=approx(x,y,xout=xends)$y
-			candidate[a]=diff(yends)/diff(xends)
-		}
-	}
+  candidate[candidate<tol] = tol
+	# xstep=mean(xdiffs)
+	# for (a in which(candidate<tol))
+	# {	
+	# 	b=0
+	# 	while(candidate[a]<tol)
+	# 	{
+	# 		b=b+1
+	# 		xends=c(max(x[1],outx[a]-b*xstep),min(x[m],outx[a]+b*xstep))
+	# 		yends=approx(x,y,xout=xends)$y
+	# 		candidate[a]=diff(yends)/diff(xends)
+	# 	}
+	# }
 }
 if(decreasing) y=-y
 if(!full) return (candidate)
