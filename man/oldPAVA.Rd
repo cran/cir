@@ -2,7 +2,7 @@
 % Please edit documentation in R/pava.r
 \name{oldPAVA}
 \alias{oldPAVA}
-\title{Returns standard isotonic-regression estimate, with flexible dose-response input}
+\title{"Old School" isotonic-regression point estimates, with flexible dose-response input}
 \usage{
 oldPAVA(
   y,
@@ -39,11 +39,10 @@ under default, returns a vector of y estimates at unique x values. With \code{fu
 Nonparametric forward point estimation of a monotone response (y), using the standard isotonic-regression pool-adjacent-violators algorithm (PAVA). Core code from Raubertas (1994) with many modifications.
 }
 \details{
-Compute the isotonic regression of a numeric vector 'y', with
-weights 'wt', with respect to simple order. The core algorithm is still the one
-coded by R.F. Raubertas, dated 02 Sep 1994. However, the input and output modules have been
-modified to allow more flexible formats in either direction.
-note that unlike centered-isotonic-regression (CIR, see \code{\link{cirPAVA}}), this algorithm does not use the dose (x) values at all. For a discussion why CIR is preferred over "plain-vanilla" PAVA, see Oron and Flournoy (2017).
+Compute the isotonic regression (IR) point estimate of a numeric input vector \code{y}, with weights \code{wt}, with respect to simple order. The core algorithm is still the one coded by R.F. Raubertas, dated 02 Sep 1994. However, the input and output modules have been
+modified to allow more flexible formats in either direction. The output is also compatible with the convenience wrapper \code{\link{quickIsotone}}; however you will have to set \code{estfun = oldPAVA} to get it to run IR rather than centered isotonic regression (CIR) which is the default for all wrapper functions in this package.
+
+Note that unlike CIR (see \code{\link{cirPAVA}}), this algorithm does not use the dose (x) values at all. For a discussion why CIR is preferred over the "plain-vanilla" PAVA of this function, see Oron and Flournoy (2017).
 }
 \references{
 Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research, In Press (author's public version available on arxiv.org).

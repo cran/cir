@@ -1,18 +1,22 @@
-##' Inverse (dose-finding) estimate of a target x value (e.g., a percentile)
+#' Inverse (dose-finding) point estimate (e.g., estimating a percentile)
 #'
 #'
 #' Inverse ("dose-finding") point estimation of a dose (x) for a specified target y value (e.g., a response rate), 
 #'  using a user-specified forward-estimation algorithm (default is CIR).
 #'
 #'
-#' The function works by calling \code{estfun} for forward estimation of the x-y relationship, then using \code{\link{approx}} with the x and y roles reversed for inverse estimation. The \code{extrapolate} option sets the \code{rule} argumet for this second call: 
-#' \itemize{
-#' \item {}{\code{extrapolate=TRUE} translates to \code{rule=2}, which actually means that the x value on the edge of the estimated y range will be assigned.}
-#' \item{}{\code{extrapolate=FALSE} (default) translates to \code{rule=1}, which means an \code{NA} will be returned for any target y value lying outside the estimated y range.}
-#' }
+#' The function works by calling \code{estfun} for forward estimation of the x-y relationship, then using \code{\link{approx}} with the x and y roles reversed for inverse estimation. It is expected that most users will not interact with this function directly, but rather indirectly via the convenience wrapper \code{\link{quickInverse}}.
+#' 
+#' The \code{extrapolate} option sets the \code{rule} argument for this second call: 
+#
+#'  - \code{extrapolate=TRUE} translates to \code{rule=2}, which actually means that the x value on the edge of the estimated y range will be assigned.
+#'  - \code{extrapolate=FALSE} (default) translates to \code{rule=1}, which means an \code{NA} will be returned for any target y value lying outside the estimated y range.
+#' 
 #' Note also that the function is set up to work with a vector of targets.
 #'
 #' If the data were obtained from an adaptive dose-finding design and you seek to estimate a dose other than the experiment's target, note that away from the target the estimates are likely biased (Flournoy and Oron, 2019). Use \code{adaptiveShrink=TRUE} to mitigate the bias. In addition, either provide the true target as \code{starget}, or a vector of values to \code{target}, with the first value being the true target.
+#' 
+#' Tie-breaking - the `tiemeth` argument passed on as the `ties` argument for `approx()` - provides yet another complication: as of 2.5.0, the default is `"decide"`, which means that the function chooses the most interior `x` value if `target` falls on the boundary of `y` estimates. Inside the boundaries the argument becomes `mean`, but with CIR this is generally ignored because there are no interior ties. Otherwise, if traditional isotonic regression (\code{\link{oldPAVA}}) is used, then the `"decide"` algorithm will pass `ties = "ordered"` on to `approx()`, respecting IR's flat stretches. A user-chosen value for `tiemeth` will override all of that; see `?approx` for options.
 
 
  
@@ -29,15 +33,16 @@
 #' @param errOnFlat logical: in case the forward estimate is completely flat making dose-finding infeasible, should an error be returned? Under default (\code{FALSE}), \code{NA}s are returned for the target estimate. 
 #' @param adaptiveShrink logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. See \code{\link{DRshrink}} and the Note.
 #' @param starget The shrinkage target. Defaults to \code{target[1]}.
+#' @param tiemeth The method to resolve ties. Default `"decide"`, meaning the function chooses based on context. See Details.
 #' @param ...	Other arguments passed on to \code{\link{doseResponse}} and \code{estfun}.
 
 #' @return under default, returns point estimate(s) of the dose (x) for the provided target rate(s). With \code{full=TRUE}, returns a list with
-#' \itemize{
-#' \item {targest } {  The said point estimate of x}
-#' \item {input  }  {  a \code{doseResponse} object summarizing the input data}
-#' \item {output  }  {  a \code{doseResponse} object with the forward estimate at design points}
-#' \item {shrinkage  }  {  a \code{doseResponse} object which is the \code{alg} output of the forward-estimation function}
-#' }
+#'
+#'  - `targest`: The said point estimate of x
+#'  - `input`:    a \code{doseResponse} object summarizing the input data
+#'  - `output`:  a \code{doseResponse} object with the forward estimate at design points
+#'  - `shrinkage`:  a \code{doseResponse} object which is the \code{alg} output of the forward-estimation function
+#' 
 
 #' @seealso \code{\link{oldPAVA}},\code{\link{cirPAVA}}. If you'd like point and interval estimates together, use \code{\link{quickInverse}}.
 
@@ -46,7 +51,7 @@
 
 #' @export
 
-doseFind<-function(y,x=NULL,wt=NULL,estfun=cirPAVA,target=NULL,full=FALSE,dec=FALSE,extrapolate=FALSE,errOnFlat=FALSE,adaptiveShrink=FALSE,starget=target[1],...) {
+doseFind<-function(y,x=NULL,wt=NULL,estfun=cirPAVA,target=NULL,full=FALSE, dec=FALSE, extrapolate=FALSE,errOnFlat=FALSE, adaptiveShrink=FALSE, starget=target[1], tiemeth = "decide", ...) {
 
 
 ### converting to doseResponse object 
@@ -71,10 +76,22 @@ if(min(newy)==max(newy))
 	if(full) return (list(targest=NA,input=dr,shrinkage=pavout$shrinkage,output=pavout$output))
 	return(rep(NA,length(target)))
 }
+### New for 2.5.0! Context-sensitive ties method
+if(tiemeth == 'decide')
+{
+  tiemeth = mean # safe-ish default
+  # Old PAVA override
+  if(identical(estfun, oldPAVA)) tiemeth = "ordered"
+  # boundary behavior under both methods
+  if(max(newy) == target) tiemeth = min
+  if(min(newy) == target) tiemeth = max
+
+}
+
 
 ### The estimate is generated by using 'approx' with x and y interchanged
 #return(pavout)
-tout=approx(x=newy,y=newx,xout=target,ties="ordered",rule=1)$y
+tout=approx(x=newy, y=newx, xout=target, ties=tiemeth, rule=1)$y
 # targets outside y range are provisionally NA'ed... now if so desired, extrapolate
 if(any(is.na(tout)) && extrapolate)
 {
@@ -90,10 +107,10 @@ if(any(is.na(tout)) && extrapolate)
 
 if (!full)  return(tout) 
 
-return (list(targest=tout,input=dr,shrinkage=pavout$shrinkage,output=pavout$output))
+return (list(targest=tout, input=dr, shrinkage=pavout$shrinkage, output=pavout$output))
 }
 
-#' Point and Interval Inverse Estimation ("Dose-Finding"), using CIR and IR
+#' Convenient point and Interval Inverse Estimation ("Dose-Finding"), using CIR or IR
 #'
 #'
 #' Convenience wrapper for point and interval estimation of the "dose" that would generate a \code{target} "response" value, using CIR and IR.
@@ -122,11 +139,11 @@ return (list(targest=tout,input=dr,shrinkage=pavout$shrinkage,output=pavout$outp
 #' @param ...	Other arguments passed on to \code{\link{doseFind}} and \code{\link{quickIsotone}}, and onwards from there.
 
 #' @return A data frame with 4 elements:
-#' \itemize{
-#' \item {\code{target}  }  { The user-provided target values of y, at which x is estimated}
-#' \item {\code{point} } {  The point estimates of x}
-#' \item {\code{lowerPPconf,upperPPconf}  }  { the interval-boundary estimates for a 'PP'=\code{100*conf} confidence interval}
-#' }
+#' 
+#'  - `target`: The user-provided target values of y, at which x is estimated
+#'  - `point`: The point estimates of x
+#'  - `lowerPPconf,upperPPconf`: the interval-boundary estimates for a 'PP'=\code{100*conf} confidence interval
+#' 
 
 #' @references Flournoy N and Oron AP, 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
 
@@ -156,7 +173,7 @@ if(all(is.na(pestimate$targest))) {
 }
 
 if(delta) { ## Default, delta-method ("local") intervals
-	dout[,3:4]=deltaInverse(pestimate,target=target,intfun=intfun,conf=conf,adaptiveCurve = adaptiveCurve,...)
+	dout[,3:4]=deltaInverse(pestimate,target=target,intfun=intfun,conf=conf, adaptiveCurve = adaptiveCurve,...)
 } else {
 #### CI, using "global" interpolation; generally too conservative and not recommended
 #	if(adaptiveShrink) dr=DRshrink(y=dr,target=starget,...)

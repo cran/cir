@@ -2,7 +2,7 @@
 % Please edit documentation in R/analIntervals.r
 \name{isotInterval}
 \alias{isotInterval}
-\title{Returns analytical interval estimates, given isotonic-regression (centered or not) point estimates}
+\title{Backend utility to calculate analytical CIR/IR interval estimates, given the point estimates}
 \usage{
 isotInterval(
   isotPoint,
@@ -27,12 +27,12 @@ isotInterval(
 a data frame with two variables \code{ciLow, ciHigh} containing the estimated lower and upper confidence bounds, respectively.
 }
 \description{
-For confidence intervals at design points ($x$ values with obesrvations), this function calls \code{intfun} to do the work. In addition, CIs for any $x$ value are calculated using linear interpolation between design points (note that for CIR, this differs from the interpolation of point estimates which is carried out between shrinkage points, as explained in \code{\link{quickIsotone}})
+For confidence intervals at design points (x values with obesrvations), this function calls \code{intfun} to do the work. In addition, CIs for any x value are calculated using linear interpolation between design points (note that for CIR, this differs from the interpolation of point estimates which is carried out between shrinkage points, as explained in \code{\link{quickIsotone}}). The interval estimation method is presented and discussed by Oron and Flournoy (2017).
 }
 \note{
-All provided algorithm and formulae are for Binomial data only. For other data, write your own \code{intfun}, returning a two-column matrix. The interval estimation method is presented and discussed by Oron and Flournoy (2017).
+All provided algorithms and formulae are for binary/Binomial data only. For other data, write your own \code{intfun}, returning a two-column matrix.
 
-Interval coverage for extreme percentiles with adaptive designs may be lacking: use \code{adaptiveCurve=TRUE} whenever the \code{target} is not 0.5. However, targeting  the the 5th or 95th percentile will likely produce intervals with 10-15\% under-coverage by with that option.
+Interval coverage for extreme percentiles with adaptive designs may be lacking: use \code{adaptiveCurve=TRUE} whenever the \code{target} is outside (0.4, 0.6). This should work as far as the 10th or 90th percentile, but not for more extreme targets.
 }
 \examples{
 # Interesting run (#664) from a simulated up-and-down ensemble:

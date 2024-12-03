@@ -60,18 +60,18 @@ Plotting methods for \code{\link{doseResponse}} and \code{\link{DRtrace}} classe
 }
 \details{
 Generic methods for dose-response trajectory/trace (\code{\link{DRtrace}}), and dose-response summary  (\code{\link{doseResponse}}) class objects.
-The \code{\link{DRtrace}} plotting uses the typical convention of plotting dose-finding experimental trace, with dose levels (x) in the vertical axis and 1/0 responses (y) denoted via filled/empty circles, respectively. In other words, this generic plotting method is only relevant for binary 0/1 outcomes.
+The \code{\link{DRtrace}} plotting uses the typical convention of plotting dose-finding experimental trace, with dose levels (x) in the vertical axis and 1/0 responses (y) denoted via filled/empty circles, respectively. In other words, this generic plotting method is only relevant for binary 0/1 outcomes. If cohort information is provided via \code{x$cohort} (i.e., multiple observations considered as collected together rather than each data point sequentially), then the plotting will respect cohort structure.
 The \code{\link{doseResponse}} plotting has response rate on the y-axis and dose on the x-axis, and plots symbols whose area is proportional to the weights.
 }
 \examples{
 ## Summary of raw data from the notorious Neuenschwander et al. (Stat. Med., 2008) trial
 ## Note the use of the 'cohort' argument to specify the cohort order
-neundatTrace = DRtrace(x = c(rep(1:4,each=4), 7, 7, rep(6,9)),
+neundatTrace = DRtrace(x = c(rep(1:4, c(3,4,5,4) ), 7, 7, rep(6,9)),
                        y = c(rep(0,16), 1,1, rep(c(0,0,1),2), 0,0,0), 
-                       cohort = rep(1:8, c(4,4,4,4, 2, 3,3,3)) )
+                       cohort = rep(1:8, c(3,4,5,4, 2, 3,3,3)) )
 par(mar=c(3,3,3,1), mgp=c(2,.5,0), tcl=-0.25)
 layout(t(1:2))
-plot(neundatTrace ,main="N. et al. (2008) Cohort Trace", xlab = 'Cohort', 
+plot(neundatTrace ,main="N. et al. (2008) Trajectory", xlab = 'Cohort', 
           ylab="Ordinal Dose Level" ,cex.main=1.5)
 
 ## Same data, in 'doseResponse' format with actual doses rather than dose levels
@@ -83,8 +83,8 @@ neundatLevel = doseResponse(neundatTrace)
 
 ### Now plotting the former, vs. IR/CIR estimates
 neunCIR0 = cirPAVA(neundatDose,full=TRUE, adaptiveShrink = TRUE, target = 0.3)
-lines(neunCIR0$shrinkage$x, neunCIR0$shrinkage$y, type='b' ,pch=19)
-legend(1,1, pch=c(4,19), legend=c('Observations', 'CIR w/bias corr.'), bty='n')
+lines(neunCIR0$shrinkage$x, neunCIR0$shrinkage$y)
+legend(1,1, pch=c(4,NA), lty = 0:1, legend=c('Observations', 'CIR w/bias corr.'), bty='n')
 }
 \seealso{
 \code{\link{doseResponse}}, \code{\link{DRtrace}}

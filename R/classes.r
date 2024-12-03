@@ -32,7 +32,7 @@ return(TRUE)
 #' Constructor functions and class-checking functions for DRtrace and doseResponse classes
 #'
 #'
-#' Functions to create and sanity-check objects of the \code{DRtrace} (dose-response experiment trace/trajectory) and \code{doseResponse} (dose-response raw summary) classes. Note that the latter inherits from the former, purely for programming-convenience reasons.
+#' Functions to create and sanity-check objects of the \code{DRtrace} (dose-response experiment trace/trajectory) and \code{doseResponse} (dose-specific response-rate summary) classes. Note that the latter inherits from the former, purely for programming-convenience reasons.
 #'
 #'
 #' The input argument \code{y} can include the entire information, or as little as the \code{y} vector of responses (for a \code{DRtrace} object) or response rates (\code{doseResponse}). When including the entire information, it has to be a data frame with at least \code{y} (both y and x for \code{DRtrace}), or a two-column matrix with 'yes' and 'no' responses (assumed in this order, but can be the reverse with \code{noyes=TRUE}). In this case the doses \code{x} can be provided as a separate vector, or as the matrix row names. \code{doseResponse} will return an error if there are any duplicates in \code{x}.

@@ -12,6 +12,7 @@ fwd1=cirPAVA(dat, full=TRUE, adaptiveShrink = TRUE, target = 0.3)
 #       They are selected here based on the y range in which there are estimates.
 yvals = c(seq(0.15, 0.3, 0.05), 0.33)
 invDelta=deltaInverse(fwd1, target = yvals, adaptiveCurve = TRUE)
+# stop()
 # We added the adaptiveCurve option because the experiment's target is off-center,
 #     and inverse-interval coverage tends to be lacking w/o that option.
 
@@ -35,7 +36,8 @@ lines(quick1$upper90conf,lty=2,col=3)
 #   Therefore, via the "global" approach there won't be a finite CI for the target estimate.
 
 # Now, the default "local" inverse interval, which is finite for the range of estimated y values.
-# In particular, it is finite (albeit very wide) for y=0.3.
+# In particular, it is finite for y=0.3.
+# Note in the plot, how we make it equal to the "global" bound when the latter is narrower.
 lines(invDelta[,1], yvals, lty=2, lwd=2)
 lines(invDelta[,2], yvals, lty=2, lwd=2)
 

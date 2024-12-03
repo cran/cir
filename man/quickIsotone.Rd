@@ -2,7 +2,7 @@
 % Please edit documentation in R/cir.R
 \name{quickIsotone}
 \alias{quickIsotone}
-\title{One-Stop-shop Forward point and interval estimation via CIR or IR}
+\title{Convenient Forward point and interval estimation via CIR or IR}
 \usage{
 quickIsotone(
   y,
@@ -41,14 +41,14 @@ quickIsotone(
 \value{
 A data frame with 4 variables:
 \itemize{
-\item {\code{x}} {either the input x values, or \code{outx} of specified;}
-\item {\code{y}} {  The point estimates of x}
-\item {\code{lowerPPconf,upperPPconf}  }  { the interval-boundary estimates for a 'PP'=\code{100*conf} confidence interval}
+\item \code{x} either the input x values, or \code{outx} if specified;
+\item \code{y}  he point estimates of x;
+\item \verb{lowerPPconf,upperPPconf} the interval-boundary estimates for a \code{PP}=\code{100*conf} confidence interval.
 }
 }
 \description{
 One-Stop-shop Forward point and confidence-interval estimation of a monotone response (y) as a function of dose (x), using centered-isotonic-regression (CIR, default) or isotonic regression. Input format is rather flexible.
-This function calls \code{\link{cirPAVA}}, \code{\link{oldPAVA}}, \code{\link{iterCIR}} (speculatively), or a user-written function, for the point estimate, then \code{\link{isotInterval}} for the confidence interval. Vector input is allowed, but the preferred input format is a \code{\link{doseResponse}} object.
+This function calls \code{\link{cirPAVA}}, \code{\link{oldPAVA}}, or a user-written function, for the point estimate, then \code{\link{isotInterval}} for the confidence interval. Vector input is allowed, but the preferred input format is a \code{\link{doseResponse}} object.
 An analogous function for dose-finding (inverse estimation) is \code{\link{quickInverse}}.
 }
 \note{

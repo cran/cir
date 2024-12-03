@@ -1,4 +1,5 @@
 \name{cir-package}
+\alias{cir-package}
 \alias{cir}
 \docType{package}
 \title{Isotonic Regression, Centered Isotonic Regression, and Dose-Response Utilities}
@@ -16,7 +17,9 @@ Since our motivation for studying IR comes from dose-finding designs such as Up-
 
 The package's focus is dose-response data with the response assumed binary (coded as 0 or 1). Some functions might work for any input data, but others will not. In particular, the confidence intervals are only applicable to binary-response data.
 
-The package also includes two S3 classes, \code{\link{doseResponse}} and \code{\link{DRtrace}}. The former which is more heavily used, is a data frame with elements \code{x,y,wt}, summarizing the dose-response information. The latter is a "trace" or a running description of raw dose-response data, with \code{x,y} provided at the resolution of single observations. Each class has a \code{plot} method.
+The package also includes two S3 classes, \code{\link{doseResponse}} and \code{\link{DRtrace}}. The former which is more heavily used, is a data frame with elements \code{x, y, wt}, summarizing the dose-response information. The latter is a "trace" or a running description of raw dose-response data, with \code{x, y, cohort} provided at the resolution of single observations. Each class has a \code{plot} method.
+
+If you intend to use \code{cir} mostly for analysis of an Up-and-Down experiment, note that the newer package \code{upndown} contains more convenient wrapper utilities for such usage. These wrappers use \code{cir} functions to carry out the basic estimation and visualization tasks.
 
 Enjoy!
 }

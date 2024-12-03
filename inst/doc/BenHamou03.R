@@ -70,7 +70,7 @@ levo83
 ## ----pacesty------------------------------------------------------------------
 PSropiEstimate = quickInverse(bhamou03ropiRates, target=0.5, estfun=oldPAVA, conf=0.83)
 PSropiEstimate
-PSlevoEstimate =quickInverse(bhamou03levoRates, target=0.5, estfun=oldPAVA, conf=0.83)
+PSlevoEstimate = quickInverse(bhamou03levoRates, target=0.5, estfun=oldPAVA, conf=0.83)
 PSlevoEstimate
 
 ## ----forward------------------------------------------------------------------

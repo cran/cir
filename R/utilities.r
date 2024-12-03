@@ -172,15 +172,15 @@ if(!full) return (candidate)
 return(list(rawslopes=slopes,initial=candidate0,final=candidate))		
 }
 
-#' Shrinkage fix to bias in observed rates under adaptive dose-finding design
+#' Shrinkage fix to mitigate bias in observed rates, under adaptive dose-finding designs
 #'
-#' Adaptive dose-finding designs induce a bias on observed rates,
+#' Adaptive dose-finding designs induce a bias on observed rates
 #' away from the target dose. This is well-known in other adaptive-design fields,
 #' but has been overlooked by the dose-finding research community.
 #' Flournoy and Oron (2020) examine the bias in the dose-finding context,
 #' and suggest a simple shrinkage fix that reduces both bias and variance.
 
-#' The fix is analogous to the empirical-logit fix to binary data, 
+#' The fix is analogous to the empirical-logit fix for zero counts in binary data, 
 #' but instead of adding 0.5 to each cell, \code{target} is added to the 1's at each dose, 
 #' and \code{1-target} to the 0's.
 #' The shrinkage is applied to the raw observation, so CIR or IR are carried out
@@ -196,6 +196,8 @@ return(list(rawslopes=slopes,initial=candidate0,final=candidate))
 #' @param swt the weight of the shrinkage. Default 1 (a single observation)
 #' @param nmin the minimum n at each dose, for the shrinkage to be applied. Default 2.
 #' @param ... parameters passed on to \code{doseResponse()} 
+#' 
+#' @example inst/examples/shrinkExamples.r
 #' 
 #' @export
 DRshrink<-function(y, x=NULL, wt0=NULL, target, swt=1, nmin=2, ...) 

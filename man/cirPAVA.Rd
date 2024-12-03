@@ -2,7 +2,7 @@
 % Please edit documentation in R/cir.R
 \name{cirPAVA}
 \alias{cirPAVA}
-\title{Returns centered-isotonic-regression estimate}
+\title{Centered-isotonic-regression (CIR) point estimation}
 \usage{
 cirPAVA(
   y,
@@ -19,25 +19,25 @@ cirPAVA(
 )
 }
 \arguments{
-\item{y}{can be either of the following: y values (response rates), a \code{\link{DRtrace}} object,a \code{\link{doseResponse}} object, or valid input (potentially together with \code{x,wt}) to generate a \code{\link{doseResponse}} object. See \code{\link{doseResponse}} help for more.}
+\item{y}{can be either of the following: y values (response rates), a \code{\link{DRtrace}} object,  \code{\link{doseResponse}} object, or valid input (potentially together with \code{x,wt}) to generate a \code{\link{doseResponse}} object. See \code{\link{doseResponse}} help for more.}
 
 \item{x}{dose levels (if not included in y).}
 
 \item{wt}{weights (if not included in y).}
 
-\item{outx}{vector of x values for which predictions will be made. If \code{NULL} (default), this will be set to the set of unique values in the x argument (or equivalently in y$x). Non-NULL inputs are relevant only if \code{full=TRUE}.}
+\item{outx}{vector of x values at which predictions will be made. If \code{NULL} (default), this will be set to the set of unique values in the x argument (or equivalently in \code{y$x}). Non-NULL inputs are relevant only if \code{full=TRUE}.}
 
-\item{full}{logical, is a more complete output desired? if \code{FALSE} (default), only a vector of point estimates for y at the provided dose levels is returned}
+\item{full}{logical, is a more complete output desired? if \code{FALSE} (default), only a vector of point estimates for y at \code{outx} is returned.}
 
-\item{dec}{logical, is the true function is assumed to be monotone decreasing? Default \code{FALSE}.}
+\item{dec}{logical, is the true function is assumed to be monotone decreasing rather than increasing? Default \code{FALSE}.}
 
-\item{strict}{logical, should CIR enforce strict monotonicity by "fixing" flat intervals as well? Default \code{FALSE}.}
+\item{strict}{logical, should CIR enforce strict monotonicity by "fixing" flat intervals everywhere? Default \code{FALSE}.}
 
 \item{interiorStrict}{logical, should CIR enforce strict monotonicity, but only for y values inside of \code{ybounds}?  Default \code{TRUE}. Choosing \code{FALSE} will be overridden if \code{strict=TRUE}, and a warning will be given.}
 
-\item{ybounds}{numeric vector of length 2, relevant only under the default setting of \code{strict=FALSE,interiorStrict=TRUE}. Default \code{0:1}. See 'Details'.}
+\item{ybounds}{numeric vector of length 2, relevant only under the default setting of \code{strict=FALSE, interiorStrict=TRUE}. Default \code{0:1}. See 'Details'.}
 
-\item{adaptiveShrink}{logical, should the y-values be pre-shrunk towards an experiment's target? Recommended if data were obtained via an adaptive dose-finding design. If \code{TRUE}, then must also provide a \code{target} argument that will be passed via \code{...}.}
+\item{adaptiveShrink}{logical, should the y-values be pre-shrunk towards a dose-finding experiment's target? Recommended if data were obtained via an adaptive dose-finding design. If \code{TRUE}, then must also provide a \code{target} argument that will be passed via \code{...}.}
 
 \item{...}{Other arguments passed on to pre-processing functions.}
 }
@@ -48,11 +48,11 @@ under default, returns a vector of y estimates at unique x values. With \code{fu
 Nonparametric forward point estimation of a monotone response (y) as a function of dose (x), using the centered-isotonic-regression (CIR) algorithm.
 }
 \details{
-This is the underlying "engine" function implementing CIR. For a quick and somewhat more user-friendly wrapper, use \code{\link{quickIsotone}}. CIR is a variation of isotonic regression (IR) that shrinks IR's constant ("flat") intervals to single points and interpolates between these points, generating a curve that is strictly monotone everywhere except (possibly) near the boundaries.
+CIR is a variation of isotonic regression (IR) that shrinks IR's constant ("flat") intervals to single points and interpolates between these points, generating a curve that is strictly monotone everywhere except (possibly) near the boundaries.This is the underlying "engine" function implementing CIR. For a quick and more user-friendly wrapper that provides both point and interval estimates, use \code{\link{quickIsotone}}.
 
-Flat intervals in the raw input data, are handled with care. Under the default setting (\code{strict=FALSE,interiorStrict=TRUE}), flat intervals are treated as monotonicity violations, unless the \eqn{y} value is on the boundary of its allowed range (default \eqn{[0,1]}, appropriate for binary-response data). On that boundary, flat intervals are left unchanged.
+Flat intervals in the raw input data, are handled with care. Under the default setting (\code{strict=FALSE, interiorStrict=TRUE}), flat intervals are treated as monotonicity violations, unless the \eqn{y} value is on the boundary of its allowed range (default \eqn{[0,1]}, appropriate for binary-response data). On that boundary, flat intervals are left unchanged.
 
-The algorithm is documented and discussed in Oron and Flournoy (2017). The function now include an \code{adaptiveShrink} option, to mitigate bias caused when using adaptive designs (Flournoy and Oron, 2020).
+The algorithm is documented and discussed in Oron and Flournoy (2017). The function includes an \code{adaptiveShrink} option, to mitigate bias caused when using adaptive designs (Flournoy and Oron, 2020).
 }
 \examples{
 # Interesting run (#664) from a simulated up-and-down ensemble:

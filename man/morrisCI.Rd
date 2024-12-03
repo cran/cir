@@ -2,7 +2,7 @@
 % Please edit documentation in R/morrisCI.r
 \name{morrisCI}
 \alias{morrisCI}
-\title{Analytical confidence intervals using the Morris (1988) algorithm}
+\title{Analytical ordered-binary-Y confidence intervals, using the Morris (1988) algorithm}
 \usage{
 morrisCI(
   y,
@@ -33,7 +33,7 @@ morrisCI(
 A two-column matrix with the same number of rows as \code{length(phat)}, containing the calculated lower and upper bounds, respectively.
 }
 \description{
-Analytical confidence intervals for CIR and IR, using the recursive algorithm by Morris (1988), equation (4.3), for ordered-binomial point estimates. Optionally, the intervals are narrowed further using a backup pointwise interval estimate.
+Analytical confidence intervals for CIR and IR, using the recursive algorithm by Morris (1988), equation (4.3), for ordered-binary-Y point estimates. Optionally, the intervals are narrowed further using a backup (unordered) interval estimate at each individual x value.
 }
 \details{
 The default for backup is Wilson's (\code{wilconCI}). Also available are Jeffrys' (\code{jeffCI}) and Agresti-Coull (\code{agcouCI}).

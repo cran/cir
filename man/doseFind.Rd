@@ -2,7 +2,7 @@
 % Please edit documentation in R/invCIR.r
 \name{doseFind}
 \alias{doseFind}
-\title{Inverse (dose-finding) estimate of a target x value (e.g., a percentile)}
+\title{Inverse (dose-finding) point estimate (e.g., estimating a percentile)}
 \usage{
 doseFind(
   y,
@@ -16,6 +16,7 @@ doseFind(
   errOnFlat = FALSE,
   adaptiveShrink = FALSE,
   starget = target[1],
+  tiemeth = "decide",
   ...
 )
 }
@@ -42,15 +43,17 @@ doseFind(
 
 \item{starget}{The shrinkage target. Defaults to \code{target[1]}.}
 
+\item{tiemeth}{The method to resolve ties. Default \code{"decide"}, meaning the function chooses based on context. See Details.}
+
 \item{...}{Other arguments passed on to \code{\link{doseResponse}} and \code{estfun}.}
 }
 \value{
 under default, returns point estimate(s) of the dose (x) for the provided target rate(s). With \code{full=TRUE}, returns a list with
 \itemize{
-\item {targest } {  The said point estimate of x}
-\item {input  }  {  a \code{doseResponse} object summarizing the input data}
-\item {output  }  {  a \code{doseResponse} object with the forward estimate at design points}
-\item {shrinkage  }  {  a \code{doseResponse} object which is the \code{alg} output of the forward-estimation function}
+\item \code{targest}: The said point estimate of x
+\item \code{input}:    a \code{doseResponse} object summarizing the input data
+\item \code{output}:  a \code{doseResponse} object with the forward estimate at design points
+\item \code{shrinkage}:  a \code{doseResponse} object which is the \code{alg} output of the forward-estimation function
 }
 }
 \description{
@@ -58,14 +61,19 @@ Inverse ("dose-finding") point estimation of a dose (x) for a specified target y
 using a user-specified forward-estimation algorithm (default is CIR).
 }
 \details{
-The function works by calling \code{estfun} for forward estimation of the x-y relationship, then using \code{\link{approx}} with the x and y roles reversed for inverse estimation. The \code{extrapolate} option sets the \code{rule} argumet for this second call:
+The function works by calling \code{estfun} for forward estimation of the x-y relationship, then using \code{\link{approx}} with the x and y roles reversed for inverse estimation. It is expected that most users will not interact with this function directly, but rather indirectly via the convenience wrapper \code{\link{quickInverse}}.
+
+The \code{extrapolate} option sets the \code{rule} argument for this second call:
 \itemize{
-\item {}{\code{extrapolate=TRUE} translates to \code{rule=2}, which actually means that the x value on the edge of the estimated y range will be assigned.}
-\item{}{\code{extrapolate=FALSE} (default) translates to \code{rule=1}, which means an \code{NA} will be returned for any target y value lying outside the estimated y range.}
+\item \code{extrapolate=TRUE} translates to \code{rule=2}, which actually means that the x value on the edge of the estimated y range will be assigned.
+\item \code{extrapolate=FALSE} (default) translates to \code{rule=1}, which means an \code{NA} will be returned for any target y value lying outside the estimated y range.
 }
+
 Note also that the function is set up to work with a vector of targets.
 
 If the data were obtained from an adaptive dose-finding design and you seek to estimate a dose other than the experiment's target, note that away from the target the estimates are likely biased (Flournoy and Oron, 2019). Use \code{adaptiveShrink=TRUE} to mitigate the bias. In addition, either provide the true target as \code{starget}, or a vector of values to \code{target}, with the first value being the true target.
+
+Tie-breaking - the \code{tiemeth} argument passed on as the \code{ties} argument for \code{approx()} - provides yet another complication: as of 2.5.0, the default is \code{"decide"}, which means that the function chooses the most interior \code{x} value if \code{target} falls on the boundary of \code{y} estimates. Inside the boundaries the argument becomes \code{mean}, but with CIR this is generally ignored because there are no interior ties. Otherwise, if traditional isotonic regression (\code{\link{oldPAVA}}) is used, then the \code{"decide"} algorithm will pass \code{ties = "ordered"} on to \code{approx()}, respecting IR's flat stretches. A user-chosen value for \code{tiemeth} will override all of that; see \code{?approx} for options.
 }
 \references{
 Flournoy N and Oron AP, 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.

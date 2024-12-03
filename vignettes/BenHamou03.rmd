@@ -29,17 +29,17 @@ knitr::opts_chunk$set(
 
 ## Overview
 
-I demonstrate the `cir` package with data from the anesthesiology experiment of Benhamou et al. (2003)^[Benhamou D, Ghosh C, Mercier FJ. A Randomized Sequential Allocation Study to Determine the Minimum Effective Analgesic Concentration of Levobupivacaine and Ropivacaine in Patients Receiving Epidural Analgesia for Labor. Anesthesiology. 2003;99(6):1383-1386.]. This experiment used the Up-and-Down (UD) dose-finding design, and was re-analyzed a few years later by Pace and Stylianou (2007).^[Pace NL, Stylianou MP. Advances in and Limitations of Up-and-down Methodology: A Précis of Clinical Use, Study Design, and Dose Estimation in Anesthesia Research. Anesthesiology. 2007;107(1):144-152.] Here I re-analyze the dataset again, using state-of-the-art Centered Isotonic Regression (CIR),^[Oron AP, Flournoy N. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Stat Biopharm Res. 2017;9(3):258-267.] the core estimator found in our package. 
+I demonstrate the `cir` package with data from the anesthesiology experiment of Benhamou et al. (2003)^[Benhamou D, Ghosh C, Mercier FJ. A Randomized Sequential Allocation Study to Determine the Minimum Effective Analgesic Concentration of Levobupivacaine and Ropivacaine in Patients Receiving Epidural Analgesia for Labor. Anesthesiology. 2003;99(6):1383-1386.]. This experiment used the Up-and-Down (UD) dose-finding design, and was re-analyzed a few years later by Pace and Stylianou (2007).^[Pace NL, Stylianou MP. Advances in and Limitations of Up-and-down Methodology: A Précis of Clinical Use, Study Design, and Dose Estimation in Anesthesia Research. Anesthesiology. 2007;107(1):144-152.] Here I re-analyze the dataset yet again, using state-of-the-art Centered Isotonic Regression (CIR),^[Oron AP, Flournoy N. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Stat Biopharm Res. 2017;9(3):258-267.] the core estimator found in our package. 
 
 Up-and-down data analysis was the original motivation for developing CIR and `cir`. For a general overview of UD designs, see Oron et al. 2022.^[Oron AP, Souter MJ, Flournoy N. Understanding Research Methods: Up-and-down Designs for Dose-finding. *Anesthesiology* 2022; 137:137–50. See also the online supplement.] However, the package is compatible with any binary-outcome data for which a monotone dose-response relationship is expected - regardless of design. The `cir` package includes methods for both **"forward"** estimation, i.e., the expected response rate conditional on dose, and **"inverse"** estimation, a.k.a. dose-finding. Both estimation directions have quick, more user-friendly all-in-one functions, and more detailed in-depth functions.
 
-If your interest is mainly in UD data analysis, then I have a dedicated UD package called `upndown` in *"advanced Beta"* stage (as of Spring 2023). It includes wrappers for even simpler, single-command plotting and estimation of UD datasets, using `cir` package functions with the defaults already dialed onto the UD context. You can download that package using `remotes::install_github(assaforon/upndown)`.
+If your interest is mainly in UD data analysis, then you are encouraged to use the dedicated UD package `upndown`. It includes wrappers for even simpler, single-command plotting and estimation of UD datasets, using `cir` package functions with the defaults already dialed onto the UD context. You can download the latest version of that package using `remotes::install_github(assaforon/upndown)`. CRAN also has a copy but it would always be a couple of steps back, as `upndown` is still new and changing a lot.
 
 ## The Study in our Example
 
-Benhamou et al. (2003) randomized women volunteers in labor into two groups, receiving as analgesic either ropivacaine or levobupivacaine, to estimate each agent’s median effective dose (ED$_{50}$) for this condition, and to test whether there is significant difference in efficacy by comparing the two estimates. The original study used a "traditional" UD dose-averaging estimation method, concluding that even though levobupivacaine seemed 19% more potent, the difference between ED$_{50}$s was not significant. To derive inference about this difference, they apparently used the standard errors of dose averages in a $t$-test like manner.
+Benhamou et al. (2003) randomized pregnant volunteers in labor into two groups, receiving as analgesic either ropivacaine or levobupivacaine, to estimate each agent’s median effective dose (ED$_{50}$) for this condition, and to test whether there is significant difference in equal-concentration efficacy by comparing the two estimates. The original study used a "traditional" UD dose-averaging estimation method, concluding that even though levobupivacaine seemed 19% more potent, the difference between ED$_{50}$s was not significant. To derive inference about this difference, they apparently used the standard errors of dose averages in a $t$-test like manner.
 
-Pace and Stylianou (2007) re-analyzed the data using isotonic regression (IR) and $83\%$ bootstrap confidence intervals (CIs); under certain assumptions, examining whether these CIs overlap is equivalent to rejecting the Null hypothesis with $\alpha = 0.05.$ ^[Payton ME, Greenstone MH, Schenker N. Overlapping confidence intervals or standard error intervals:  What do they mean in terms of statistical significance? J Insect Sci. 2003;3(1).] They found a larger difference: levobupivacaine was 37% more potent according to the IR estimates. Furthermore, they diffrence was deemed statistically significant because the $83\%$ CIs did not overlap.
+Pace and Stylianou (2007) re-analyzed the data using isotonic regression (IR) and $83\%$ bootstrap confidence intervals (CIs); under certain assumptions, examining whether these CIs overlap is equivalent to rejecting the Null hypothesis with $\alpha = 0.05.$ ^[Payton ME, Greenstone MH, Schenker N. Overlapping confidence intervals or standard error intervals:  What do they mean in terms of statistical significance? J Insect Sci. 2003;3(1).] They found a larger difference: levobupivacaine was 37% more potent according to the IR estimates. Furthermore, the difference was deemed statistically significant because the $83\%$ CIs did not overlap.
 
 Here we revisit this experiment yet again. To reduce some confusion, we drop the percent sign from description of doses used *(they were given as concentrations in percent in the original)*.
 
@@ -63,7 +63,7 @@ bhamou03ropi = DRtrace(x=xropi[-40]/100, y=(1-diff(xropi))/2)
 bhamou03levo = DRtrace(x=xlevo[-40]/100, y=(1-diff(xlevo))/2)
 ```
 
-In the construction above, we gave up the 40th and last observation in each arm, because we only know its dose but not the response. Since UD datasets (and more generally, small-sample dose-response datasets) are rather compact, as shown above adding the data takes no more than 2-3 lines of code. But you can also use `.csv` file input if preferred, with two columns headed `x` and `y`. 
+In the construction above, we gave up the 40th and last observation in each arm, because we only know its dose but not the response. Since UD datasets (and more generally, small-sample dose-response datasets) are rather compact, as shown above entering the data takes no more than 2-3 lines of code. But you can also use `.csv` file input if preferred, with two columns headed `x` and `y`. 
 
 `DRtrace` objects have a native plotting method:
 
@@ -80,7 +80,7 @@ The "traditional" estimates in the original articles, just used some type of ave
 
 Generally speaking, the "traditional" estimates are rather outdated and lack robustness. We recommend CIR as the standard estimator for up-and-down experiments (see e.g., [Oron et al. 2022 supplement (pdf link)](https://cdn-links.lww.com/permalink/aln/c/aln_2022_05_25_oron_aln-d-21-01101_sdc1.pdf)).
 
-## Dose-Response Plain and ED$_{50}$ Estimates
+## Dose-Response Plot and ED$_{50}$ Estimates
 
 To derive CIR estimates, we take the `DRtrace` trajectory objects and generate `doseResponse` dose-rate-count summaries.
 
@@ -111,7 +111,7 @@ abline( h=0.5, col='purple', lty=2)
 
 Target-dose estimation via regression is an [**"Inverse Problem"**](https://en.wikipedia.org/wiki/Inverse_problem): we draw a line at the desired $y$ value (in this case, $50\%$ or 0.5, marked in purple), and look for the best-fitting $x$ value. With the Ropivacaine arm data (left), there's a relatively clear transition between low-response and high-response regions, so the target seems to lie between concentrations $0.09$ and $0.10$. We cannot be very confident of that, given the limited amount of information - but at least there's a clear candidate. 
 
-With Levobupivacaine data (right) the picture is far more murky. Concentrations $0.07$ and $0.08$ go above $50\%$ response, but  $0.09$ and $0.10$ go back below that level! As we visualize near the end, CIR helps clear that murky picture via the simplest pooled response-rate averages that makes the overall dose-response curve obey monotonicity.
+With Levobupivacaine data (right) the picture is far more murky. Concentrations $0.07$ and $0.08$ go above $50\%$ response, but  $0.09$ and $0.10$ go back below that level! As we visualize further below, CIR helps clear that murky picture via the simplest pooled response-rate averages that makes the overall dose-response curve obey monotonicity.
 
 But before going behind the scenes: from the `doseResponse` object, CIR estimation of $F(x)$  is only one step away.
 
@@ -150,21 +150,21 @@ Paradoxically, despite using a point-estimation method very close to Pace and St
 
 Indeed, our point estimates are very similar to the Pace-Stylianou reanalysis, and so is our estimated levo/ropi potency ratio (1.37, quite a bit higher than Benhamou et al.’s 1.19).  **Where we part ways with Pace and Stylianou - dramatically - is indeed the confidence intervals for which our method is quite different.** Pace and Stylianou used an adaptation of the bootstrap, whereas we use an analytical approach based on Morris’ theoretical work with intervals for datasets with monotone dose-response data,^[Morris MD. Small-Sample Confidence Limits for Parameters under Inequality Constraints with Application to Quantal Bioassay. Biometrics. 1988;44:1083-1092.] the Delta method, and additional modifications to adapt to typical dose-finding data limitations.
 
-Looking in more detail at the two confidence limits with the biggest difference between our method and the boostrap: their $83\%$ LCL for Ropivacaine is $0.087$ - only 0.6 of a dose-spacing step below their point estimate  - whereas ours is `r round(ropi83$lower83conf, 3)`, nearly 1.5 spacings below our point estimate. Their Levobupivacaine $83\%$ UCL is $0.081$ (1.3 spacings above point-estimate) vs. `r round(levo83$upper83conf, 3)` (>2 spacings above that estimate).  Conceptually, the bootstrap CIs appear unrealistically narrow given the amount of information available - only 39 binary observations spread over several doses. 
+Looking in more detail at the two confidence limits with the biggest difference between our method and the boostrap: their $83\%$ LCL for Ropivacaine is $0.087$ - only 0.6 of a dose-spacing step below their point estimate  - whereas ours is `r round(ropi83$lower83conf, 3)`, nearly 1.5 spacings below our point estimate. Their Levobupivacaine $83\%$ UCL is $0.081$ (1.3 spacings above point-estimate) vs. `r round(levo83$upper83conf, 3)` (>2 spacings above that estimate).  Conceptually, the bootstrap CIs appear unrealistically narrow given the amount of information available - only 39 dependent binary observations spread over several doses. 
 
 By the way, we can use the same `quickInverse()` function to reproduce the Pace-Stylianou *point* estimates (but not the CIs, since `cir` does not implement the bootstrap approach):
 
 ```{r pacesty}
 PSropiEstimate = quickInverse(bhamou03ropiRates, target=0.5, estfun=oldPAVA, conf=0.83)
 PSropiEstimate
-PSlevoEstimate =quickInverse(bhamou03levoRates, target=0.5, estfun=oldPAVA, conf=0.83)
+PSlevoEstimate = quickInverse(bhamou03levoRates, target=0.5, estfun=oldPAVA, conf=0.83)
 PSlevoEstimate
 ```
 
 
 Note the argument specifying the `oldPAVA()` estimation function (PAVA is the name of the leading algorithm to produce IR estimates; the package default is `cirPAVA()`, i.e., CIR). 
 
-Let us visualize more clearly the CIR estimates, and the argument for wider intervals from this dataset.
+Let us visualize more clearly the CIR estimates, and the rationale supporting wider intervals from this dataset.
 
 ## Visualizing CIR on the Dose-Response Plane
 
@@ -188,7 +188,7 @@ levoCurveCIR
 
 We end with the dose-response plots, the regression curves and the target estimates, with the two arms aligned and arranged vertically to help visualize the CI overlap.
 
-**As can be seen below, in `cir` this takes quite a bit of coding. In the new `upndown` package dedicated to up-and-down designs *(currently in beta version on GitHub `assaforon/upndown`, and soon also on CRAN)*, most of what you see in the plot can be achieved in a single command with the `drplot()` utility** (which does of course rely on `cir` functions in the background).
+**As can be seen below, in `cir` this takes quite a bit of coding. In the new `upndown` package dedicated to up-and-down designs *(currently in beta version on GitHub `assaforon/upndown`, and soon also on CRAN)*, most of what you see in the plot can be achieved in a single command with the `drplot()` utility** (which does of course rely on `cir` functions in the backend).
 
 ```{r drfig,fig.width=6,fig.height=12,out.height=1000,out.width=500}
 par(mfrow=c(2,1), las=1, mar=c(4,4,4,1)) # image format parameters
@@ -226,11 +226,11 @@ lines(c(0.059, 0.081), rep(0.49,2))
 
 ### Notes
 
- - The 2007 CIs were shifted slightly downward in the plot, to make them visible.
- - Referring back to the "murky" picture around target in the Levobupivacaine dose-response plots, we see that both IR (black dashes) and CIR (solid blue) pool the observations from $x = 0.08, 0,09, 0.10$ into a single weighted average $y$ value, which is only slightly higher than the estimate at $x = 0.07.$ The main difference is that IR creates a flat "stretch" with that pooled $y$ value, whereas CIR also pools along the $x$ axis into a single point on the dose-response plain. So both these nonparametric algorithms *"convert the murkiness"* into concluding (with very limited confidence, given the overall small $n$) that **$F(x)$ is very shallow for a long stretch, right above the $y = 0.5$ target response rate.**
+ - The 2007 estimates were shifted slightly downward in the plot, to make them visible.
+ - Referring back to the "murky" picture around target in the Levobupivacaine dose-response plots, we see that both IR (black dashes) and CIR (solid blue) pool the observations from $x = 0.08, 0,09, 0.10$ into a single weighted average $y$ value, which is only slightly higher than the estimate at $x = 0.07.$ The main difference is that IR creates a flat "stretch" with that pooled $y$ value, whereas CIR also pools along the $x$ axis into a single point on the dose-response plane. So both these nonparametric algorithms *"convert the murkiness"* into concluding (with very limited confidence, given the overall small $n$) that **$F(x)$ is very shallow for a long stretch, right above the $y = 0.5$ target response rate.**
  
- - We see how the CIR intervals stretch to accommodate this shallowness. Indeed, **our confidence-interval method for inverse estimation is driven by local slope around target**, which we believe is the more correct approach.
- - Take in particular the Levobupivacaine plot at $x = 0.10$. The CIR estimate of $F(x)$ there is `r round(levoCurveCIR$output$y[6], 3)`. The IR estimate which is what Pace and Stylianou used to inform their bootstrap, is `r round(levoCurveIR$output$y[6], 3)` - even closer to the $50\%$ study target-rate, and statistically indistinguishable from it at these sample sizes. Yet, $0.10$ lies not only outside the 2007 bootstrap's $83\%$ CI, but also outside the $95\%$ CI (which is $0.058, 0.095$). This suggests that the bootstrap intervals are substantially too short.
+ - We see how the CIR intervals stretch to accommodate this shallowness. Indeed, **our confidence-interval method for inverse estimation is driven directly by local slope around target**, which we believe is the more realistic approach.
+ - Take in particular the Levobupivacaine plot at $x = 0.10$. The CIR estimate of $F(x)$ there is `r round(levoCurveCIR$output$y[6], 3)`. The IR estimate which is what Pace and Stylianou used to inform their bootstrap, is `r round(levoCurveIR$output$y[6], 3)` - even closer to the $50\%$ study target-rate, and statistically indistinguishable from it at these sample sizes. Yet, $0.10$ lies not only outside the 2007 article bootstrap's $83\%$ CI, but also outside their $95\%$ CI (which is $0.058, 0.095$). This suggests that the bootstrap intervals are substantially too short.
  - Prior to `cir` package version 2.3.0, the estimated slope informing the CI was the same to the right and left of target, and hence CIs were usually near-symmetric *(and in this particular example, much shorter)*. We now estimate different *"left"* and *"right"* slopes. To revert to the single-slope version, use the argument `slopeRefinement = FALSE` in your `quickInverse()` call.  
  - In this demonstration the CIR curves differ from the ordinary IR curves not only in the CIR algorithm that “shrinks” horizontal intervals to single points, but also in the bias correction found by Flournoy and Oron (2020) and mentioned earlier. In principle this correction is compatible with both methods, but here we applied it only to CIR, because it did not exist at the time of Pace and Stylianou’s article.
 

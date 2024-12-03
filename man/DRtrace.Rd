@@ -32,7 +32,7 @@ doseResponse(y, x = NULL, wt = rep(1, length(y)), noyes = FALSE, ...)
 For constructor functions, the relevant object. For checking functions, a logical value indicating whether the object meets class definition.
 }
 \description{
-Functions to create and sanity-check objects of the \code{DRtrace} (dose-response experiment trace/trajectory) and \code{doseResponse} (dose-response raw summary) classes. Note that the latter inherits from the former, purely for programming-convenience reasons.
+Functions to create and sanity-check objects of the \code{DRtrace} (dose-response experiment trace/trajectory) and \code{doseResponse} (dose-specific response-rate summary) classes. Note that the latter inherits from the former, purely for programming-convenience reasons.
 }
 \details{
 The input argument \code{y} can include the entire information, or as little as the \code{y} vector of responses (for a \code{DRtrace} object) or response rates (\code{doseResponse}). When including the entire information, it has to be a data frame with at least \code{y} (both y and x for \code{DRtrace}), or a two-column matrix with 'yes' and 'no' responses (assumed in this order, but can be the reverse with \code{noyes=TRUE}). In this case the doses \code{x} can be provided as a separate vector, or as the matrix row names. \code{doseResponse} will return an error if there are any duplicates in \code{x}.
@@ -42,12 +42,12 @@ Even though both \code{DRtrace} and \code{doseResponse} accept two-column yes/no
 \examples{
 ## Summary of raw data from the notorious Neuenschwander et al. (Stat. Med., 2008) trial
 ## Note the use of the 'cohort' argument to specify the cohort order
-neundatTrace = DRtrace(x = c(rep(1:4,each=4), 7, 7, rep(6,9)),
+neundatTrace = DRtrace(x = c(rep(1:4, c(3,4,5,4) ), 7, 7, rep(6,9)),
                        y = c(rep(0,16), 1,1, rep(c(0,0,1),2), 0,0,0), 
-                       cohort = rep(1:8, c(4,4,4,4, 2, 3,3,3)) )
+                       cohort = rep(1:8, c(3,4,5,4, 2, 3,3,3)) )
 par(mar=c(3,3,3,1), mgp=c(2,.5,0), tcl=-0.25)
 layout(t(1:2))
-plot(neundatTrace ,main="N. et al. (2008) Cohort Trace", xlab = 'Cohort', 
+plot(neundatTrace ,main="N. et al. (2008) Trajectory", xlab = 'Cohort', 
           ylab="Ordinal Dose Level" ,cex.main=1.5)
 
 ## Same data, in 'doseResponse' format with actual doses rather than dose levels
@@ -59,8 +59,8 @@ neundatLevel = doseResponse(neundatTrace)
 
 ### Now plotting the former, vs. IR/CIR estimates
 neunCIR0 = cirPAVA(neundatDose,full=TRUE, adaptiveShrink = TRUE, target = 0.3)
-lines(neunCIR0$shrinkage$x, neunCIR0$shrinkage$y, type='b' ,pch=19)
-legend(1,1, pch=c(4,19), legend=c('Observations', 'CIR w/bias corr.'), bty='n')
+lines(neunCIR0$shrinkage$x, neunCIR0$shrinkage$y)
+legend(1,1, pch=c(4,NA), lty = 0:1, legend=c('Observations', 'CIR w/bias corr.'), bty='n')
 }
 \seealso{
 \code{\link{cirPAVA}}, \code{\link{plot.doseResponse}},\code{\link{plot.DRtrace}}

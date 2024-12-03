@@ -2,7 +2,7 @@
 % Please edit documentation in R/utilities.r
 \name{DRshrink}
 \alias{DRshrink}
-\title{Shrinkage fix to bias in observed rates under adaptive dose-finding design}
+\title{Shrinkage fix to mitigate bias in observed rates, under adaptive dose-finding designs}
 \usage{
 DRshrink(y, x = NULL, wt0 = NULL, target, swt = 1, nmin = 2, ...)
 }
@@ -22,16 +22,26 @@ DRshrink(y, x = NULL, wt0 = NULL, target, swt = 1, nmin = 2, ...)
 \item{...}{parameters passed on to \code{doseResponse()}}
 }
 \description{
-Adaptive dose-finding designs induce a bias on observed rates,
+Adaptive dose-finding designs induce a bias on observed rates
 away from the target dose. This is well-known in other adaptive-design fields,
 but has been overlooked by the dose-finding research community.
 Flournoy and Oron (2020) examine the bias in the dose-finding context,
 and suggest a simple shrinkage fix that reduces both bias and variance.
-The fix is analogous to the empirical-logit fix to binary data,
+The fix is analogous to the empirical-logit fix for zero counts in binary data,
 but instead of adding 0.5 to each cell, \code{target} is added to the 1's at each dose,
 and \code{1-target} to the 0's.
 The shrinkage is applied to the raw observation, so CIR or IR are carried out
 on the shrunk data.
+}
+\examples{
+## Summary of raw data from the notorious Neuenschwander et al. (Stat. Med., 2008) trial
+## Note the use of the 'cohort' argument to specify the cohort order
+neundatDose = doseResponse(x=c(1,2.5,5,10,20,25), y = c(rep(0,4),2/9,1), wt = c(3,4,5,4,9,2) )
+
+neundatDose
+
+# Compare to this:
+DRshrink(neundatDose, target = 0.3)
 }
 \references{
 Flournoy N and Oron AP, 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.

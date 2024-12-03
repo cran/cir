@@ -70,10 +70,10 @@ return(uout)
 }
 #####
 
-##' Analytical confidence intervals using the Morris (1988) algorithm
+##' Analytical ordered-binary-Y confidence intervals, using the Morris (1988) algorithm
 ##'
 ##'
-##' Analytical confidence intervals for CIR and IR, using the recursive algorithm by Morris (1988), equation (4.3), for ordered-binomial point estimates. Optionally, the intervals are narrowed further using a backup pointwise interval estimate.
+##' Analytical confidence intervals for CIR and IR, using the recursive algorithm by Morris (1988), equation (4.3), for ordered-binary-Y point estimates. Optionally, the intervals are narrowed further using a backup (unordered) interval estimate at each individual x value.
 ##'
 ##' 
 ##' The default for backup is Wilson's (\code{wilconCI}). Also available are Jeffrys' (\code{jeffCI}) and Agresti-Coull (\code{agcouCI}).
