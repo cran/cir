@@ -13,7 +13,14 @@ is.doseResponse(dr)
 
 DRtrace(y, x = NULL, cohort = NULL, noyes = FALSE, ...)
 
-doseResponse(y, x = NULL, wt = rep(1, length(y)), noyes = FALSE, ...)
+doseResponse(
+  y,
+  x = NULL,
+  wt = rep(1, length(y)),
+  noyes = FALSE,
+  dosevals = NULL,
+  ...
+)
 }
 \arguments{
 \item{dr}{the object being checked}
@@ -27,6 +34,8 @@ doseResponse(y, x = NULL, wt = rep(1, length(y)), noyes = FALSE, ...)
 \item{...}{parameters passed on to \code{DRtrace()}, or ignored.}
 
 \item{wt}{(\code{doseResponse} only) the weights associated with each \code{x} value; usually the sample size or similar.}
+
+\item{dosevals}{(\code{doseResponse} only) when converting a \code{DRtrace} object to \code{doseResponse}, use this optional argument to enter physical x values rather than nominal "dose levels".}
 }
 \value{
 For constructor functions, the relevant object. For checking functions, a logical value indicating whether the object meets class definition.
@@ -40,20 +49,24 @@ The input argument \code{y} can include the entire information, or as little as 
 Even though both \code{DRtrace} and \code{doseResponse} accept two-column yes/no matrix input, the interpretation is different. For the former, this form of input is intended mostly to enable shorthand input when the experiment was run in cohorts. Each row represents a cohort's results, and rows must be in the order the experiment was run. For the latter, the yes-no table is a summary tabulation of responses and is treated accordingly, including rearrangement of rows to increasing \code{x}.
 }
 \examples{
-## Summary of raw data from the notorious Neuenschwander et al. (Stat. Med., 2008) trial
+## Summary of raw data from the notorious Neuenschwander et al. trial (Stat. Med., 2008)
 ## Note the use of the 'cohort' argument to specify the cohort order
 neundatTrace = DRtrace(x = c(rep(1:4, c(3,4,5,4) ), 7, 7, rep(6,9)),
                        y = c(rep(0,16), 1,1, rep(c(0,0,1),2), 0,0,0), 
                        cohort = rep(1:8, c(3,4,5,4, 2, 3,3,3)) )
 par(mar=c(3,3,3,1), mgp=c(2,.5,0), tcl=-0.25)
 layout(t(1:2))
-plot(neundatTrace ,main="N. et al. (2008) Trajectory", xlab = 'Cohort', 
-          ylab="Ordinal Dose Level" ,cex.main=1.5)
+plot(neundatTrace ,main="N. et al. (2008) Trajectory", xlab = 'Cohort', dosevals = 1:8, 
+          ylab="Ordinal Dose Level" ,cex.main=1.5, las = 1)
 
 ## Same data, in 'doseResponse' format with actual doses rather than dose levels
-neundatDose = doseResponse(x=c(1,2.5,5,10,20,25), y = c(rep(0,4),2/9,1), wt = c(3,4,5,4,9,2) )
-plot(neundatDose ,main="N. et al. (2008) Final Dose-Toxicity", ylim=c(0,1),
-	xlab="Dose (mg/sq.m./wk)", ylab="Toxicity Response Curve (F)", cex.main=1.5)
+## We can create the object from scratch, or convert the DRtrace object
+##    while putting in physical doses via the 'dosevals' argument.
+neundatDose = doseResponse(neundatTrace, dosevals = c(1,2.5,5,10,20,25) )
+
+plot(neundatDose ,main="N. et al. (2008) Final Dose-Toxicity", ylim=c(0,1), 
+     dosevals = seq(0, 25, 5), xlab="Dose (mg/sq.m./wk)", ylab="Toxicity Response Curve (F)", 
+     cex.main=1.5, las = 1)
 ## We can also convert the DRtrace object to doseResponse...
 neundatLevel = doseResponse(neundatTrace)
 

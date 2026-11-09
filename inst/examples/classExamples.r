@@ -1,17 +1,21 @@
-## Summary of raw data from the notorious Neuenschwander et al. (Stat. Med., 2008) trial
+## Summary of raw data from the notorious Neuenschwander et al. trial (Stat. Med., 2008)
 ## Note the use of the 'cohort' argument to specify the cohort order
 neundatTrace = DRtrace(x = c(rep(1:4, c(3,4,5,4) ), 7, 7, rep(6,9)),
                        y = c(rep(0,16), 1,1, rep(c(0,0,1),2), 0,0,0), 
                        cohort = rep(1:8, c(3,4,5,4, 2, 3,3,3)) )
 par(mar=c(3,3,3,1), mgp=c(2,.5,0), tcl=-0.25)
 layout(t(1:2))
-plot(neundatTrace ,main="N. et al. (2008) Trajectory", xlab = 'Cohort', 
-          ylab="Ordinal Dose Level" ,cex.main=1.5)
+plot(neundatTrace ,main="N. et al. (2008) Trajectory", xlab = 'Cohort', dosevals = 1:8, 
+          ylab="Ordinal Dose Level" ,cex.main=1.5, las = 1)
 
 ## Same data, in 'doseResponse' format with actual doses rather than dose levels
-neundatDose = doseResponse(x=c(1,2.5,5,10,20,25), y = c(rep(0,4),2/9,1), wt = c(3,4,5,4,9,2) )
-plot(neundatDose ,main="N. et al. (2008) Final Dose-Toxicity", ylim=c(0,1),
-	xlab="Dose (mg/sq.m./wk)", ylab="Toxicity Response Curve (F)", cex.main=1.5)
+## We can create the object from scratch, or convert the DRtrace object
+##    while putting in physical doses via the 'dosevals' argument.
+neundatDose = doseResponse(neundatTrace, dosevals = c(1,2.5,5,10,20,25) )
+
+plot(neundatDose ,main="N. et al. (2008) Final Dose-Toxicity", ylim=c(0,1), 
+     dosevals = seq(0, 25, 5), xlab="Dose (mg/sq.m./wk)", ylab="Toxicity Response Curve (F)", 
+     cex.main=1.5, las = 1)
 ## We can also convert the DRtrace object to doseResponse...
 neundatLevel = doseResponse(neundatTrace)
 

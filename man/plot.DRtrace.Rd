@@ -11,9 +11,13 @@
   ylab = "Dose",
   shape = "circle",
   connect = TRUE,
-  mcol = 1,
+  scol = 1,
+  lcol = scol,
+  obsvals = NULL,
   dosevals = NULL,
-  offset = 0.2,
+  offset = 0.1,
+  ylim = NULL,
+  size = 1,
   ...
 )
 
@@ -23,10 +27,11 @@
   ylab = "Response",
   pch = "X",
   varsize = TRUE,
-  refsize = sqrt(1/mean(x$weight)),
+  refsize = NULL,
   connect = FALSE,
-  mcol = 1,
+  scol = 1,
   dosevals = NULL,
+  xlim = NULL,
   ...
 )
 }
@@ -35,49 +40,62 @@
 
 \item{xlab, ylab}{x-axis and y-axis labels passed on to \code{\link{plot}}}
 
-\item{shape}{the plotting shape (DRtrace only): 'circle' (default), 'square', or 'triangle'}
+\item{shape}{the plotting shape (\code{DRtrace} only): 'circle' (default), 'square', or 'triangle'}
 
 \item{connect}{logical: whether to connect the symbols (generic plotting type 'b'). Default \code{TRUE} for \code{\link{DRtrace}} and \code{FALSE} for \code{\link{doseResponse}}}
 
-\item{mcol}{The color of the main plotting symbols and connecting lines. Default 1 (the current palette's first color). Note: if you change the color and inadvertently use \code{col} instead, there will be an error message.}
+\item{scol}{The color of the main plotting symbols. Default 1 (the current palette's first color). Note: if you inadvertently use \code{col} to set the color, there will be an error message.}
 
-\item{dosevals}{Dose values to be plotted along the x-axis (\code{plot.doseResponse}) or y-axis (\code{plot.DRtrace}) . If \code{NULL} (default), those will be the doses in the dataset (i.e.,\code{sort(unique(x$x))}).}
+\item{lcol}{The color of the connecting lines, if relevant. Default same as \code{scol}.}
+
+\item{obsvals}{(\code{DRtrace} only) values to be plotted along the x-axis denoting observation order. If \code{NULL} (default), the graphical environment will choose which values to plot automatically, per default R behavior.}
+
+\item{dosevals}{Dose values to be plotted along the x-axis (\code{plot.doseResponse}) or y-axis (\code{plot.DRtrace}). Must be on the same scale as \code{x$x}. If \code{NULL} (default), those will be the doses in the dataset (i.e.,\code{sort(unique(x$x))}).}
 
 \item{offset}{(\code{DRtrace} only) In case of a cohort-based experiment, the relative vertical offset between symbols for outcomes within the same cohort (as fraction of dose spacing). Default 0.2.}
 
-\item{...}{Other arguments passed on to \code{\link{plot}}.
+\item{ylim}{(\code{DRtrace} only) Similar to the base \code{plot()} function's \code{ylim} argument. If kept \code{NULL} (default), will be determined by \code{range(dosevals)}.}
 
-Conversely, putting values on a different scale into \code{dosevals}, or even text labels instead of numbers, won't work. For the former, change the scale at the source data (i.e., in the plotted object). For the latter, sorry but no solution at present.}
+\item{size}{(\code{DRtrace} only) symbol size, analogous to \code{cex} (which you should not use, see note for \code{scol} above). A different name is used because there is some nuance related to enabling \code{scol} and \code{lcol} to differ, as well as accommodating larger symbols. Don't ask \emph{(but you can look at the code of course)}.}
+
+\item{...}{Other arguments passed on to \code{\link{plot}}.}
 
 \item{pch}{the plotting character (doseResponse only), the default being 'X' marks}
 
 \item{varsize}{(\code{doseResponse} only) logical, should symbol size vary by sample size? Default \code{TRUE}}
 
 \item{refsize}{(\code{doseResponse} only) a reference size by which the plotting sizes will be multiplied. Default is \code{1/sqrt(mean(dr$weight))}, scaled so that if \code{varsize = TRUE} the weighted-average symbol size is 1. If \code{varsize = FALSE}, this argument is equivalent to \code{cex} in an ordinary x-y \code{plot()} call.}
+
+\item{xlim}{(\code{doseResponse} only) Analogous to the above.}
 }
 \description{
 Plotting methods for \code{\link{doseResponse}} and \code{\link{DRtrace}} classes.
 }
 \details{
 Generic methods for dose-response trajectory/trace (\code{\link{DRtrace}}), and dose-response summary  (\code{\link{doseResponse}}) class objects.
-The \code{\link{DRtrace}} plotting uses the typical convention of plotting dose-finding experimental trace, with dose levels (x) in the vertical axis and 1/0 responses (y) denoted via filled/empty circles, respectively. In other words, this generic plotting method is only relevant for binary 0/1 outcomes. If cohort information is provided via \code{x$cohort} (i.e., multiple observations considered as collected together rather than each data point sequentially), then the plotting will respect cohort structure.
+The \code{\link{DRtrace}} plotting uses the typical convention of plotting dose-finding experimental trace, with dose levels (x) in the vertical axis and 1/0 responses (y) denoted via filled/empty symbols, respectively. In other words, this generic plotting method is only relevant for binary 0/1 outcomes. If cohort information is provided via \code{x$cohort} (i.e., multiple observations considered as collected together rather than each data point sequentially), then the plotting will respect cohort structure.
+
 The \code{\link{doseResponse}} plotting has response rate on the y-axis and dose on the x-axis, and plots symbols whose area is proportional to the weights.
 }
 \examples{
-## Summary of raw data from the notorious Neuenschwander et al. (Stat. Med., 2008) trial
+## Summary of raw data from the notorious Neuenschwander et al. trial (Stat. Med., 2008)
 ## Note the use of the 'cohort' argument to specify the cohort order
 neundatTrace = DRtrace(x = c(rep(1:4, c(3,4,5,4) ), 7, 7, rep(6,9)),
                        y = c(rep(0,16), 1,1, rep(c(0,0,1),2), 0,0,0), 
                        cohort = rep(1:8, c(3,4,5,4, 2, 3,3,3)) )
 par(mar=c(3,3,3,1), mgp=c(2,.5,0), tcl=-0.25)
 layout(t(1:2))
-plot(neundatTrace ,main="N. et al. (2008) Trajectory", xlab = 'Cohort', 
-          ylab="Ordinal Dose Level" ,cex.main=1.5)
+plot(neundatTrace ,main="N. et al. (2008) Trajectory", xlab = 'Cohort', dosevals = 1:8, 
+          ylab="Ordinal Dose Level" ,cex.main=1.5, las = 1)
 
 ## Same data, in 'doseResponse' format with actual doses rather than dose levels
-neundatDose = doseResponse(x=c(1,2.5,5,10,20,25), y = c(rep(0,4),2/9,1), wt = c(3,4,5,4,9,2) )
-plot(neundatDose ,main="N. et al. (2008) Final Dose-Toxicity", ylim=c(0,1),
-	xlab="Dose (mg/sq.m./wk)", ylab="Toxicity Response Curve (F)", cex.main=1.5)
+## We can create the object from scratch, or convert the DRtrace object
+##    while putting in physical doses via the 'dosevals' argument.
+neundatDose = doseResponse(neundatTrace, dosevals = c(1,2.5,5,10,20,25) )
+
+plot(neundatDose ,main="N. et al. (2008) Final Dose-Toxicity", ylim=c(0,1), 
+     dosevals = seq(0, 25, 5), xlab="Dose (mg/sq.m./wk)", ylab="Toxicity Response Curve (F)", 
+     cex.main=1.5, las = 1)
 ## We can also convert the DRtrace object to doseResponse...
 neundatLevel = doseResponse(neundatTrace)
 

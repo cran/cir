@@ -54,7 +54,7 @@ An analogous function for dose-finding (inverse estimation) is \code{\link{quick
 \note{
 You can obtain interpolated point estimates for x values between the observed data by specifying them via \code{outx}. However, for CIR, do NOT commit the error of generating estimates at observations, then interpolating using \code{\link{approx}}. If you need to retain a set of estimates for plotting the entire fitted curve, or for future interpolation at unknown points, call \code{\link{cirPAVA}} directly with \code{full=TRUE}, then use the returned \code{shrinkage} data frame for plotting and interpolation. See example code below.
 
-If the data were obtained from an adaptive dose-finding design then away from the design's target the estimates are likely biased (Flournoy and Oron, 2020). Use \code{adaptiveShrink=TRUE} to mitigate the bias.
+If the data were obtained from an adaptive dose-finding design then away from the design's target the estimates are likely biased (Flournoy and Oron, 2019). Use \code{adaptiveShrink=TRUE} to mitigate the bias.
 }
 \examples{
 # Interesting run (#664) from a simulated up-and-down ensemble:
@@ -99,7 +99,7 @@ legend('topleft',pch=c(NA,'X',NA,NA),lty=c(1,NA,2,1),col=c(2,1,1,1),
 \references{
 Oron, A.P. and Flournoy, N., 2017. Centered Isotonic Regression: Point and Interval Estimation for Dose-Response Studies. Statistics in Biopharmaceutical Research 9, 258-267. (author's public version available on arxiv.org).
 
-Flournoy, N. and Oron, A.P., 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
+Flournoy, N. and Oron, A.P., 2019. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
 }
 \seealso{
 \code{\link{cirPAVA}},\code{\link{oldPAVA}},\code{\link{isotInterval}},\code{\link{quickInverse}},\code{\link{doseResponse}}

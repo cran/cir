@@ -17,10 +17,11 @@ invDelta=deltaInverse(fwd1, target = yvals, adaptiveCurve = TRUE)
 #     and inverse-interval coverage tends to be lacking w/o that option.
 
 ### Showing the data and the estimates
+layout(1)
 par(mar=c(3,3,4,1), mgp=c(2,.5,0), tcl=-0.25)
 # Following command uses plot.doseResponse()
 plot(dat, ylim=c(0.05,0.55), 
-     las=1, xlim=c(0,6.5), main="Inverse-Estimation CIs") 
+     las=1, dosevals = 1:6, main="Inverse-Estimation CIs") 
 
 # The true response function; true target is where it crosses the y=0.3 line
 lines(seq(0,7,0.1), pweibull(seq(0,7,0.1), shape=1.1615, scale=8.4839), col=4, lwd=1.5)

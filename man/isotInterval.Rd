@@ -53,7 +53,7 @@ int4=isotInterval(slow1,intfun=jeffCI)
 
 ### Showing the data and the intervals
 par(mar=c(3,3,4,1),mgp=c(2,.5,0),tcl=-0.25)
-plot(dat,ylim=c(0,0.65),refsize=4,las=1,main="Forward-Estimation CIs") # uses plot.doseResponse()
+plot(dat,ylim=c(0,0.65),refsize=1,las=1,main="Forward-Estimation CIs") # uses plot.doseResponse()
 
 # The true response function; true target is where it crosses the y=0.3 line
 lines(seq(0,7,0.1),pweibull(seq(0,7,0.1),shape=1.1615,scale=8.4839),col=4)

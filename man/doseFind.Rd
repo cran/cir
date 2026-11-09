@@ -76,7 +76,7 @@ If the data were obtained from an adaptive dose-finding design and you seek to e
 Tie-breaking - the \code{tiemeth} argument passed on as the \code{ties} argument for \code{approx()} - provides yet another complication: as of 2.5.0, the default is \code{"decide"}, which means \code{"ordered"} - unless \code{target} falls on the boundary of \code{y} estimates, in which case the most interior \code{x} value is chosen. A user-chosen value for \code{tiemeth} will override all of that; see \code{?approx} for options.
 }
 \references{
-Flournoy N and Oron AP, 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
+Flournoy N and Oron AP, 2019. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
 }
 \seealso{
 \code{\link{oldPAVA}},\code{\link{cirPAVA}}. If you'd like point and interval estimates together, use \code{\link{quickInverse}}.

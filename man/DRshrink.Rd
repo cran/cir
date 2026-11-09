@@ -25,7 +25,7 @@ DRshrink(y, x = NULL, wt0 = NULL, target, swt = 1, nmin = 2, ...)
 Adaptive dose-finding designs induce a bias on observed rates
 away from the target dose. This is well-known in other adaptive-design fields,
 but has been overlooked by the dose-finding research community.
-Flournoy and Oron (2020) examine the bias in the dose-finding context,
+Flournoy and Oron (2019) examine the bias in the dose-finding context,
 and suggest a simple shrinkage fix that reduces both bias and variance.
 The fix is analogous to the empirical-logit fix for zero counts in binary data,
 but instead of adding 0.5 to each cell, \code{target} is added to the 1's at each dose,
@@ -44,7 +44,7 @@ neundatDose
 DRshrink(neundatDose, target = 0.3)
 }
 \references{
-Flournoy N and Oron AP, 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
+Flournoy N and Oron AP, 2019. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
 }
 \author{
 Assaf P. Oron \code{<assaf.oron.at.gmail.com>}

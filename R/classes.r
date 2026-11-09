@@ -49,6 +49,7 @@ return(TRUE)
 
 #' @param y,x see Details.
 #' @param wt (`doseResponse` only) the weights associated with each `x` value; usually the sample size or similar.
+#' @param dosevals (`doseResponse` only) when converting a `DRtrace` object to `doseResponse`, use this optional argument to enter physical x values rather than nominal "dose levels".
 #' @param cohort  (`DRtrace` only) specify each observation's cohorts, if there were cohorts. If all cohorts were the same size, then you can specify the size as a single number. If there were no cohorts, code will default this variable to `1:n`
 #' @param noyes logical, in case of a 2-column input is the 1st column 'no'? Default \code{FALSE}, meaning the 1st column is 'yes'.
 #' @param dr the object being checked
@@ -57,7 +58,7 @@ return(TRUE)
 #' @return For constructor functions, the relevant object. For checking functions, a logical value indicating whether the object meets class definition.
 #' @export
 
-DRtrace<-function(y, x=NULL, cohort=NULL, noyes=FALSE, ...)
+DRtrace <- function(y, x=NULL, cohort=NULL, noyes=FALSE, ...)
 {
 if(is.DRtrace(y)) return(y)
 
@@ -115,7 +116,7 @@ return(tout)
 ##' @rdname DRtrace
 #' @export
 
-doseResponse<-function(y,x=NULL,wt=rep(1,length(y)),noyes=FALSE, ...)
+doseResponse<-function(y, x=NULL, wt=rep(1,length(y)), noyes=FALSE, dosevals = NULL, ...)
 {
 if(is.doseResponse(y)) return(y)
 if(!is.DRtrace(y) && is.data.frame(y)) # data frame input, e.g, from read.csv
@@ -135,7 +136,15 @@ if(is.null(ll) && is.null(x)) x=1:length(y)
 if(is.DRtrace(y) || any(duplicated(x)) || any(diff(x)<0))  
  {
 	if(is.DRtrace(y)) {z=y} else z <- suppressWarnings(DRtrace(y=y, x=x, ...))
-	tout<-data.frame(x=sort(unique(z$x)), y=tapply(z$y,z$x,mean), weight=as.numeric(table(z$x)) )
+	xvals = sort(unique(z$x))
+	if(!is.null(dosevals))
+	{
+	  if(length(dosevals) != length(xvals)) stop('dosevals has the wrong number of values.\n')
+	  if(any(diff(dosevals)<= 0) ) stop('dosevals must be monotone increasing.\n')
+	  xvals = dosevals
+	}
+	tout<-data.frame(x = xvals, y = tapply(z$y,z$x,mean), 
+	                 weight = as.numeric(table(z$x)) )
 
 } else if(length(ll)==2 && ll[2]==2) 
 ## Now, two-column yes-no matrix case

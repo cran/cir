@@ -44,7 +44,7 @@
 
 #' @seealso \code{\link{oldPAVA}},\code{\link{cirPAVA}}. If you'd like point and interval estimates together, use \code{\link{quickInverse}}.
 
-#' @references Flournoy N and Oron AP, 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
+#' @references Flournoy N and Oron AP, 2019. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
 
 
 #' @export
@@ -139,7 +139,7 @@ return (list(targest=tout, input=dr, shrinkage=pavout$shrinkage, output=pavout$o
 #'  - `lowerPPconf,upperPPconf`: the interval-boundary estimates for a 'PP'=\code{100*conf} confidence interval
 #' 
 
-#' @references Flournoy N and Oron AP, 2020. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
+#' @references Flournoy N and Oron AP, 2019. Bias Induced by Adaptive Dose-Finding Designs. Journal of Applied Statistics 47, 2431-2442.
 
 
 #' @seealso \code{\link{quickIsotone}},\code{\link{doseFind}},\code{\link{deltaInverse}}
